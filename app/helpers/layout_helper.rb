@@ -21,6 +21,6 @@ module LayoutHelper
   end
   
   def site_title
-    @site_title = Settings.site_title.strip
+    @site_title = Settings.site_title.strip if Settings.site_title
   end
 end
