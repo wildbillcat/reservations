@@ -26,6 +26,8 @@ gem "ffaker"
 gem "rails3-jquery-autocomplete"
 gem "kaminari"
 gem "pg"
+gem "fog"
+gem "thin"
 
 group :development, :test do
   gem "factory_girl_rails"
