@@ -80,12 +80,16 @@ class ApplicationController < ActionController::Base
   def update_cart
     session[:cart].set_start_date(Date.strptime(params[:cart][:start_date_cart],'%m/%d/%Y'))
     session[:cart].set_due_date(Date.strptime(params[:cart][:due_date_cart],'%m/%d/%Y'))
+    session[:cart].set_reserver_id(params[:reserver_id])
     flash[:notice] = "Cart dates updated."
     if !cart.valid_dates?
       flash[:error] = cart.errors.values.flatten.join("<br/>").html_safe
       cart.errors.clear
     end
-    redirect_to root_path
+    respond_to do |format|
+      format.html{redirect_to root_path}
+      format.js{render :file => "reservations/cart_dates_js"}
+    end
   end
 
   def empty_cart
