@@ -213,7 +213,7 @@ class ReservationsController < ApplicationController
   autocomplete :user, :last_name, :extra_data => [:first_name, :login], :display_value => :render_name
   
   def get_autocomplete_items(parameters)
-    items = User.select("first_name, last_name, login, id").where(["CONCAT_WS(' ', first_name, last_name, login) ILIKE ?", "%#{parameters[:term]}%"])
+    items = User.select("first_name, last_name, login, id").where(["CONCAT_WS(' ', first_name, last_name, login) LIKE ?", "%#{parameters[:term]}%"])
   end
 
   def renew
