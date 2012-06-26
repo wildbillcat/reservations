@@ -9,3 +9,4 @@ config/database.yml~
 .rbenv-version
 .sass-cache/
 *.orig
+public/assets/*
