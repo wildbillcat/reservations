@@ -4,7 +4,7 @@ gem "whenever"
 gem "net-ldap"
 gem "paperclip"
 gem "rake"
-#gem "mysql2"
+gem "mysql2"
 gem "rdoc"
 gem "rubycas-client-rails"
 gem "rubycas-client", "2.2.1"
@@ -25,10 +25,10 @@ gem "cocoon"
 gem "ffaker"
 gem "rails3-jquery-autocomplete"
 gem "kaminari"
+gem 'bootstrap-kaminari-views'
 gem "pg"
 gem "fog"
 gem "thin"
-
 group :development, :test do
   gem "factory_girl_rails"
   gem 'rspec-rails'
@@ -41,4 +41,6 @@ group :assets do
   gem 'sass-rails'
   gem 'coffee-rails'
   gem 'uglifier'
+  gem 'bootstrap-sass', '~> 2.0.3'
+  gem 'font-awesome-sass-rails'
 end
