@@ -2,6 +2,8 @@ Reservations::Application.routes.draw do
 
   root :to => 'catalog#index'
 
+  resources :sessions
+  resources :identities
   resources :documents
   resources :equipment_objects
   
@@ -59,5 +61,8 @@ Reservations::Application.routes.draw do
   match '/app_config/update' => 'app_config#update', :as => :update_app_config  
   
   match ':controller(/:action(/:id(.:format)))'
+
+  match '/auth/cas/callback' => 'sessions#create'
+  match '/auth/identity/callback' => 'sessions#create'
 
 end

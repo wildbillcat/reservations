@@ -27,6 +27,9 @@ gem "ffaker"
 gem "rails3-jquery-autocomplete"
 gem "kaminari"
 gem 'bootstrap-kaminari-views'
+gem "omniauth-cas"
+gem "omniauth-identity"
+gem "bcrypt-ruby"
 
 group :development, :test do
   gem "factory_girl_rails"

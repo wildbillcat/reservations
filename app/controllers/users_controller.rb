@@ -26,7 +26,7 @@ class UsersController < ApplicationController
   end
 
   def new
-    if current_user and current_user.is_admin_in_adminmode?
+    if current_user && current_user.is_admin_in_adminmode?
       @user = User.new
     else
       @user = User.new(User.search_ldap(session[:cas_user]))
@@ -36,13 +36,13 @@ class UsersController < ApplicationController
 
   def create
     @user = User.new(params[:user])
-    @user.login = session[:cas_user] unless current_user and (current_user.is_admin_in_adminmode? or current_user.is_admin_in_checkoutpersonmode? or current_user.is_checkout_person?)
+    @user.login = session[:cas_user] unless current_user && (current_user.is_admin_in_adminmode? || current_user.is_admin_in_checkoutpersonmode? || current_user.is_checkout_person?)
     @user.is_admin = true if User.count == 0
     if @user.save
       flash[:notice] = "Successfully created user."
 #   redirect to New Reservations page iff logged in as admin or
 #   checkout person
-      redirect_to ((current_user.is_admin_in_adminmode? or current_user.is_admin_in_checkoutpersonmode? or current_user.is_checkout_person?) ? @user : root_path)
+      redirect_to ((current_user.is_admin_in_adminmode? || current_user.is_admin_in_checkoutpersonmode? || current_user.is_checkout_person?) ? @user : root_path)
     else
       render :action => 'new'
     end

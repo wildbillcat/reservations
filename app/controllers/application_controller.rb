@@ -5,11 +5,11 @@ class ApplicationController < ActionController::Base
   helper :all # include all helpers, all the time
   protect_from_forgery # See ActionController::RequestForgeryProtection for details
 
-  before_filter RubyCAS::Filter
   before_filter :first_time_user
   before_filter :cart
   before_filter :set_view_mode
   before_filter :current_user
+  before_filter :authorize
   #before_filter :bind_pry_before_everything
 
   helper_method :current_user
@@ -25,6 +25,12 @@ class ApplicationController < ActionController::Base
   end
 
   #-------- before_filter methods --------
+  def authorize
+    if session[:cas_user].nil?
+      redirect_to new_session_path
+    end
+  end
+
   def first_time_user
     if current_user.nil?
       flash[:notice] = "Hey there! Since this is your first time making a reservation, we'll

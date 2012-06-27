@@ -2,6 +2,7 @@ require 'net/ldap'
 
 class User < ActiveRecord::Base
   has_many :reservations, :foreign_key => 'reserver_id'
+  has_one :identity
   nilify_blanks :only => [:deleted_at] 
 
   attr_accessible :login, :first_name, :last_name, :nickname, :phone, :email,

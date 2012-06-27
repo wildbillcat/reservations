@@ -38,7 +38,7 @@
   			    <ul class="nav nav-list well">
               <li class="active"><%= link_to "Catalog", catalog_path %></li>
             <% if current_user.nil? %>
-              <li><%= link_to "Sign In" %></li>
+              <li><%= link_to "Sign In", new_session_path %></li>
             <% elsif current_user.is_admin_in_adminmode? %>
               <li><%= link_to "Users", users_path %></li>
             <% else %>

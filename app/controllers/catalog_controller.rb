@@ -1,4 +1,5 @@
 class CatalogController < ApplicationController
+  skip_filter :authorize
   def index
     @default_user_per = Settings.default_per_cat_page.to_i
 
