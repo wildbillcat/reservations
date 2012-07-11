@@ -32,6 +32,10 @@ group :development, :test do
   gem 'capybara'
   gem 'guard-livereload'
   gem 'yajl-ruby'
+  gem 'minitest-rails'
+  gem 'minitest-rails-capybara'
+  gem 'minitest-spec-rails'
+  gem 'turn', :require => false #this colors our minitest output
 end
 
 # Gems used only for assets and not required
