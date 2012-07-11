@@ -5,10 +5,4 @@ class CanAccessHomeTest < MiniTest::Rails::ActionDispatch::IntegrationTest
     visit root_path
     assert page.has_content?("Reservations") #a capybara assertion - see https://github.com/jnicklas/capybara/#the-dsl for more
   end
-
-  test "the homepage has contentlol" do
-    visit root_path
-    assert page.has_content?("lol") #a capybara assertion - see https://github.com/jnicklas/capybara/#the-dsl for more
-  end
-
 end
