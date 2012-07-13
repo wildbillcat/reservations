@@ -9,12 +9,13 @@ Reservations::Application.routes.draw do
       get :flash_message
     end
   end
-   
+
   root :to => 'catalog#index'
 
   resources :sessions
   resources :identities
-  resources :documents
+
+  resources :requirements
   resources :documents, :equipment_objects
   
   resources :equipment_models do

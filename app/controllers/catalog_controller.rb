@@ -1,4 +1,5 @@
 class CatalogController < ApplicationController
+  skip_filter :authorize
   layout 'application_with_sidebar'
   
   def index

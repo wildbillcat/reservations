@@ -74,9 +74,6 @@ class UsersController < ApplicationController
         format.js {render :action => 'create_success'}
       end
     else
-#      if current_user.is_admin_in_adminmode?
-#      redirect_to :back and return
-      
       respond_to do |format|
         format.js {render :action => 'edit_reload'}
       end
