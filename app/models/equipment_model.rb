@@ -1,16 +1,14 @@
 class EquipmentModel < ActiveRecord::Base
   ## Associations ##
 
+  has_and_belongs_to_many :requirements
   belongs_to :category
   has_many :equipment_objects
   has_many :documents
   # has_and_belongs_to_many :reservations
   # has_many :equipment_models_reservations
   has_many :reservations
-  has_and_belongs_to_many :associated_equipment_models,
-                          :class_name => "EquipmentModel",
-                          :association_foreign_key => "associated_equipment_model_id",
-                          :join_table => "equipment_models_associated_equipment_models"
+
   has_many :checkin_procedures, :dependent => :destroy
   accepts_nested_attributes_for :checkin_procedures, :reject_if => :all_blank, :allow_destroy => true
   has_many :checkout_procedures, :dependent => :destroy
@@ -36,8 +34,6 @@ class EquipmentModel < ActiveRecord::Base
   ##has_many :accessories_equipment_models, :foreign_key => :equipment_model_id
   ##has_many :accessories, :through => :accessories_equipment_models
 
-
-
   ## Validations ##
 
   validates :name, 
@@ -58,26 +54,42 @@ class EquipmentModel < ActiveRecord::Base
   attr_accessible :name, :category_id, :description, :late_fee, :replacement_fee, 
                   :max_per_user, :document_attributes, :accessory_ids, :deleted_at, 
                   :checkout_procedures_attributes, :checkin_procedures_attributes, :photo, 
-                  :documentation, :max_renewal_times, :max_renewal_length, :renewal_days_before_due
+                  :documentation, :max_renewal_times, :max_renewal_length, :renewal_days_before_due, :associated_equipment_model_ids
+
+   default_scope where(:deleted_at => nil)
+   
+    def self.include_deleted
+      self.unscoped
+    end
+
+  def self.catalog_search(query)
+    if query.blank? # if the string is blank, return all
+      find(:all)
+    else # in all other cases, search using the query text
+      find(:all, :conditions => ['name LIKE :query OR description LIKE :query', {:query => "%#{query}%"}])
+    end
+  end
 
   #Code necessary for Paperclip and image/pdf uploading
   has_attached_file :photo, #generates profile picture 
-      :styles => { :large => "500x500>", :medium => "250x250>", :small => "150x150>", :thumbnail => "100x100#"},
+      :styles => { :large => "500x500>", :medium => "250x250>", :small => "150x150>", :thumbnail => "260x180#"},
       :url  => "/equipment_models/:attachment/:id/:style/:basename.:extension",
       :path => ":rails_root/public/equipment_models/:attachment/:id/:style/:basename.:extension",
       :default_url => "/fat_cat.jpeg"
 
   has_attached_file :documentation, #generates document
-                    :content_type => 'application/pdf'
+                    :content_type => 'application/pdf',
+                    :url => "/equipment_models/:attachment/:id/:style/:basename.:extension",
+                    :path => ":rails_root/public/equipment_models/:attachment/:id/:style/:basename.:extension"
       
-  # validates_attachment_content_type :photo, 
-  #                                     :content_type => ["image/jpg", "image/png", "image/jpeg"], 
-  #                                     :message => "must be jpeg, jpg, or png."
-  #   validates_attachment_size         :photo, 
-  #                                     :less_than => 500.kilobytes,
-  #                                     :message => "must be less than 500 kb"
+  validates_attachment_content_type :photo, 
+                                      :content_type => ["image/jpg", "image/png", "image/jpeg"], 
+                                      :message => "must be jpeg, jpg, or png."
+  validates_attachment_size         :photo, 
+                                      :less_than => 1.megabytes,
+                                      :message => "must be less than 1 MB in size"
   
-  #validates_attachment :documentation, :content_type => { :content_type => "appplication/pdf" }
+  validates_attachment :documentation, :content_type => { :content_type => "application/pdf" }
   
   Paperclip.interpolates :normalized_photo_name do |attachment, style|
     attachment.instance.normalized_photo_name
@@ -137,16 +149,39 @@ class EquipmentModel < ActiveRecord::Base
     self.documents.images
   end
 
-  def available?(date_range)
+  def available?(date_range) #This does not actually return true or false
+       qualification_met = true
+       if (a = BlackOut.date_is_blacked_out(date_range.first)) && a.black_out_type_is_hard
+         #add Error about the black out date?
+         return 0
+       end
+       if (a = BlackOut.date_is_blacked_out(date_range.last)) && a.black_out_type_is_hard
+         #add Error about the black out date?
+         return 0
+       end
     overall_count = self.equipment_objects.size
+
     date_range.each do |date|
       available_on_date = available_count(date)
       overall_count = available_on_date if available_on_date < overall_count
-      return false if overall_count == 0
-    end
+    end 
     overall_count
   end
   
+  def model_restricted?(reserver_id) #Returns 0 if the reserver is ineligible to checkout the model.
+    qualification_met = false
+    unless (Requirement.where(:equipment_model_id => self.id)).empty?
+      qualification_met = true        
+        User.find(reserver_id).requirements.each do |req|
+          if req.equipment_model_id == self.id
+             qualification_met = false
+          end
+        end
+     end
+     return qualification_met
+  end
+
+
   def available_count(date)
     # get the total number of objects of this kind
     # then subtract the total quantity currently checked out, reserved, or overdue
@@ -161,9 +196,13 @@ class EquipmentModel < ActiveRecord::Base
   def available_object_select_options
     self.equipment_objects.select{|e| e.available?}.sort_by(&:name).collect{|item| "<option value=#{item.id}>#{item.name}</option>"}.join.html_safe
   end
-  
+
   def fake_category_id
     self
+  end
+
+  def blehbleh
+     self
   end
 
 #  def max_renewal_times # number of times you're allowed to renew an item

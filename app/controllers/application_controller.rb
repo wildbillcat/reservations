@@ -5,32 +5,54 @@ class ApplicationController < ActionController::Base
   helper :all # include all helpers, all the time
   protect_from_forgery # See ActionController::RequestForgeryProtection for details
 
+<<<<<<< HEAD
+=======
+  before_filter RubyCAS::Filter
+  before_filter :app_setup, :if => lambda {|u| User.all.count == 0 }  
+  before_filter :load_configs
+>>>>>>> development
   before_filter :first_time_user
   before_filter :cart
   before_filter :set_view_mode
   before_filter :current_user
+<<<<<<< HEAD
   before_filter :authorize
+=======
+  
+  
+>>>>>>> development
   #before_filter :bind_pry_before_everything
 
   helper_method :current_user
   helper_method :cart
 
-
   def bind_pry_before_everything
     binding.pry
   end
+  
+  def load_configs
+    @app_configs = AppConfig.first
+  end
 
   def current_user
-    @current_user ||= User.find_by_login(session[:cas_user]) if session[:cas_user]
+    @current_user ||= User.include_deleted.find_by_login(session[:cas_user]) if session[:cas_user]
   end
 
   #-------- before_filter methods --------
+<<<<<<< HEAD
   def authorize
     if session[:cas_user].nil?
       redirect_to new_session_path
     end
   end
 
+=======
+  
+  def app_setup
+      redirect_to new_admin_user_path
+  end
+  
+>>>>>>> development
   def first_time_user
     if current_user.nil?
       flash[:notice] = "Hey there! Since this is your first time making a reservation, we'll
@@ -81,22 +103,28 @@ class ApplicationController < ActionController::Base
       redirect_to :action => "index" and return
     end
   end
+
   #-------- end before_filter methods --------
 
   def update_cart
-    session[:cart].set_start_date(Date.strptime(params[:start_date_cart],'%m/%d/%Y'))
-    session[:cart].set_due_date(Date.strptime(params[:due_date_cart],'%m/%d/%Y'))
-#    session[:cart].set_start_date(Date.strptime(params[:cart][:start_date_cart],'%m/%d/%Y'))
-#    session[:cart].set_due_date(Date.strptime(params[:cart][:due_date_cart],'%m/%d/%Y'))
+   #set dates
+    flash.clear
+    session[:cart].set_start_date(Date.strptime(params[:cart][:start_date_cart],'%m/%d/%Y'))
+    session[:cart].set_due_date(Date.strptime(params[:cart][:due_date_cart],'%m/%d/%Y'))
     session[:cart].set_reserver_id(params[:reserver_id])
-    flash[:notice] = "Cart dates updated."
-    if !cart.valid_dates?
+    if !cart.valid_dates? #Validations are currently broken, so this always evaluates to false
       flash[:error] = cart.errors.values.flatten.join("<br/>").html_safe
       cart.errors.clear
+      if flash[:error].blank?
+        flash[:notice] = "Cart updated"
+      end
     end
+
+    # reload appropriate divs / exit
     respond_to do |format|
-      format.html{redirect_to root_path}
-      format.js{render :template => "reservations/cart_dates_js"}
+      format.js{render :template => "reservations/cart_dates_reload"}
+        # guys i really don't like how this is rendering a template for js, but :action doesn't work at all
+      format.html{render :partial => "reservations/cart_dates"}
     end
   end
 
@@ -142,12 +170,12 @@ class ApplicationController < ActionController::Base
 
   def deactivate
     if (current_user.is_admin)
-      @objects_class2 = params[:controller].singularize.titleize.delete(' ').constantize.find(params[:id]) #Finds the current model (User, EM, EO, Category)
+      @objects_class2 = params[:controller].singularize.titleize.delete(' ').constantize.include_deleted.find(params[:id]) #Finds the current model (User, EM, EO, Category)
       if (params[:controller] != "users") #Search for children is not necessary if we are altering users.
         deactivateChildren(@objects_class2)
       end
       @objects_class2.destroy #Deactivate the model you had originally intended to deactivate
-      flash[:notice] = "Successfully deactivated " + params[:controller].singularize.titleize + ". Any child objects have been deactivated as well."
+      flash[:notice] = "Successfully deactivated " + params[:controller].singularize.titleize + ". Any related reservations or equipment have been deactivated as well."
     else
       flash[:notice] = "Only administrators can do that!"
     end
@@ -156,16 +184,15 @@ class ApplicationController < ActionController::Base
 
   def activate
     if (current_user.is_admin)
-      @model_to_activate = params[:controller].singularize.titleize.delete(' ').constantize.find(params[:id]) #Finds the current model (User, EM, EO, Category)
+      @model_to_activate = params[:controller].singularize.titleize.delete(' ').constantize.include_deleted.find(params[:id]) #Finds the current model (User, EM, EO, Category)
       if (params[:controller] != "users") #Search for parents is not necessary if we are altering users.
         activateParents(@model_to_activate)
       end
       @model_to_activate.revive #Activate the model you had originally intended to activate
-      flash[:notice] = "Successfully reactivated " + params[:controller].singularize.titleize + ". Any parent objects have been reactivated as well."
+      flash[:notice] = "Successfully reactivated " + params[:controller].singularize.titleize + ". Any related reservations or equipment have been reactivated as well."
     else
       flash[:notice] = "Only administrators can do that!"
     end
     redirect_to request.referer  # Or use redirect_to(back)
   end
-
 end
