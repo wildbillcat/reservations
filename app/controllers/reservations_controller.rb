@@ -49,7 +49,7 @@ class ReservationsController < ApplicationController
   end
 
   def create
-    complete_reservation = []
+    complete_reservation = [] #necessary for email to work
     # using http://stackoverflow.com/questions/7233859/ruby-on-rails-updating-multiple-models-from-the-one-controller as inspiration
     respond_to do |format|
       Reservation.transaction do
@@ -64,11 +64,11 @@ class ReservationsController < ApplicationController
             end
           end
           session[:cart] = Cart.new
-          unless AppConfig.first.reservation_confirmation_email_active?
+          unless @app_configs.reservation_confirmation_email_active == false 
             UserMailer.reservation_confirmation(complete_reservation).deliver
           end
           if current_user.can_checkout?
-            redirect_to manage_reservations_for_user_path(params[:reservation][:reserver_id]) and return
+            redirect_to manage_reservations_for_user_path(params[:reservation][:reserver_id]), :flash => {:notice => "Successfully created reservation. " } and return
           else
             redirect_to catalog_path, :flash => {:notice => "Successfully created reservation. " } and return
           end
@@ -87,27 +87,20 @@ class ReservationsController < ApplicationController
   
   def update # for editing reservations; not for checkout or check-in
     @reservation = Reservation.find(params[:id])
-    
     # adjust dates to match intended input of Month / Day / Year
     start = Date.strptime(params[:reservation][:start_date],'%m/%d/%Y')
     due = Date.strptime(params[:reservation][:due_date],'%m/%d/%Y')
-    
     # make sure dates are valid
     if due < start
       flash[:error] = 'Due date must be after the start date.'
       redirect_to :back and return
     end
-    
     # update attributes
     @reservation.reserver_id = params[:reservation][:reserver_id]
     @reservation.start_date = start
     @reservation.due_date = due
     @reservation.notes = params[:reservation][:notes]
-    
-    # save changes to database
     @reservation.save
-
-    # flash success and exit
     flash[:notice] = "Successfully edited reservation."
     redirect_to @reservation
   end

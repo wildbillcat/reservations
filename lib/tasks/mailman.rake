@@ -2,7 +2,7 @@ desc "Send email reminders about upcoming reservations that have not been checke
 
  task :mailman => :environment do
    
- if AppConfig.first.upcoming_checkin_email_active?
+ if AppConfig.first.upcoming_checkin_email_active == true
   #get all reservations that end today and aren't already checked in
   upcoming_reservations = Reservation.find(:all, :conditions => ["checked_out IS NOT NULL and checked_in IS NULL and due_date >= ? and due_date < ?", Time.now.midnight.utc, Time.now.midnight.utc + 1.day])
     puts "Found #{upcoming_reservations.size} reservations due for checkin. Sending reminder emails..."
@@ -14,7 +14,7 @@ desc "Send email reminders about upcoming reservations that have not been checke
   puts "Upcoming check in emails are not sent by admin. Please change the application settings if you wish to send them."
   end
 
-if AppConfig.first.overdue_checkout_email_active?
+if AppConfig.first.overdue_checkout_email_active == true
   #get all reservations that started before today and aren't already checked out
   upcoming_reservations = Reservation.find(:all, :conditions => ["checked_out IS NULL and start_date < ? and  start_date >= ?", Time.now.midnight.utc, Time.now.midnight.utc - 1.day])
   puts "Found #{upcoming_reservations.size} reservations overdue for checkout. Sending reminder emails..."
@@ -26,7 +26,7 @@ else
   puts "Overdue checkout emails are not sent by admin. Please change the application settings if you wish to send them."
 end 
 
-if AppConfig.first.overdue_checkin_email_active?
+if AppConfig.first.overdue_checkin_email_active == true
   #get all reservations that ended before today and aren't already checked in
   overdue_reservations = Reservation.find(:all, :conditions => ["checked_out IS NOT NULL and checked_in IS NULL and due_date < ?", Time.now.midnight.utc])
   puts "Found #{overdue_reservations.size} reservations overdue for checkin. Sending reminder emails..."

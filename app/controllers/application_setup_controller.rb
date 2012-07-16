@@ -36,7 +36,7 @@ class ApplicationSetupController < ApplicationController
   end
   
   def initialize_app_configs
-     if @app_configs.nil?
+     if AppConfig.first.nil?
        AppConfig.create!({ :site_title => "Reservations",
                            :admin_email => "admin@admin.admin",
                            :department_name => "School of Art Digital Technology Office",
