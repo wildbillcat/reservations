@@ -87,6 +87,7 @@ Reservations::Application.routes.draw do
   match '/create_admin_user' => 'application_setup#create_admin_user', :as => :create_admin_user
   resources :application_setup, :only => [:new_admin_user, :create_admin_user]
   
+  match '/login_settings' => 'application_setup#login_settings', :as => :login_settings
   match '/new_app_configs' => 'application_setup#new_app_configs', :as => :new_app_configs
   match '/create_app_configs' => 'application_setup#create_app_configs', :as => :create_app_configs
   

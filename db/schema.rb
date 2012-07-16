@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120713180637) do
+ActiveRecord::Schema.define(:version => 20120713194815) do
 
   create_table "accessories_equipment_models", :force => true do |t|
     t.integer  "accessory_id"
@@ -37,6 +37,14 @@ ActiveRecord::Schema.define(:version => 20120713180637) do
     t.text    "overdue_checkin_email_body"
     t.boolean "overdue_checkin_email_active",          :default => true
     t.string  "auth_provider"
+    t.string  "ldap_host"
+    t.integer "ldap_port"
+    t.string  "ldap_login"
+    t.string  "ldap_base_query"
+    t.string  "ldap_first_name"
+    t.string  "ldap_last_name"
+    t.string  "ldap_phone"
+    t.string  "ldap_email"
   end
 
   create_table "black_outs", :force => true do |t|

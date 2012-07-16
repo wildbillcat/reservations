@@ -27,20 +27,20 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user
-    @current_user ||= User.include_deleted.find_by_login(session[:cas_user]) if session[:cas_user]
+    @current_user ||= User.include_deleted.find_by_login(session[:user_login]) if session[:user_login]
   end
 
   #-------- before_filter methods --------
 
   def authorize
-    if session[:cas_user].nil?
+    if session[:user_login].nil?
       redirect_to new_session_path
     end
   end
 
 
   def app_setup
-      redirect_to new_admin_user_path
+      redirect_to login_settings_path
   end
 
   def first_time_user

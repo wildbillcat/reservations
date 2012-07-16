@@ -1,2 +1,6 @@
 <% title "Sign In" %>
-<%= link_to "CAS sign in", '/auth/cas/' %>
+<% if @app_configs.auth_provider == "CAS" %>
+  <%= link_to "CAS sign in", '/auth/cas/' %>
+<%else %>
+  <%= link_to "Identity sign in", '/auth/identity' %>
+<% end %>

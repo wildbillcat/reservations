@@ -38,14 +38,14 @@ class UsersController < ApplicationController
     if current_user && current_user.is_admin_in_adminmode?
       @user = User.new
     else
-      @user = User.new(User.search_ldap(session[:cas_user]))
-      @user.login = session[:cas_user] #default to current login
+      @user = User.new(User.search_ldap(session[:user_login]))
+      @user.login = session[:user_login] #default to current login
     end
   end
 
   def create
     @user = User.new(params[:user])
-    @user.login = session[:cas_user] unless current_user && (current_user.is_admin_in_adminmode? || current_user.is_admin_in_checkoutpersonmode? || current_user.is_checkout_person?)
+    @user.login = session[:user_login] unless current_user && (current_user.is_admin_in_adminmode? || current_user.is_admin_in_checkoutpersonmode? || current_user.is_checkout_person?)
     @user.is_admin = true if User.count == 0
     if @user.save
       respond_to do |format|

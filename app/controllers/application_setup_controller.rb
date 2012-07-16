@@ -1,27 +1,28 @@
 class ApplicationSetupController < ApplicationController
   skip_filter :first_time_user
   skip_filter :app_setup
-  
+  skip_filter :authorize, :only => [:login_settings, :create_app_configs]
+
   before_filter :initialize_app_configs
   before_filter :load_configs
-  before_filter :new_admin_user  
+  before_filter :new_admin_user, :except => [:login_settings, :create_app_configs]
   before_filter :redirect_if_not_first_run
+  before_filter :skip_first_if_authorized, :only => [:login_settings]
   
+
+  def skip_first_if_authorized
+    redirect_to new_admin_user_path if session[:user_login]
+  end
 
   def new_admin_user
     flash[:notice] = "Welcome to Reservations! Create your user and you will be guided 
                       through a setup to get your application up and running."
-    if current_user and current_user.is_admin_in_adminmode?
-       @user = User.new
-     else
-       @user = User.new(User.search_ldap(session[:cas_user]))
-       @user.login = session[:cas_user] #default to current login
-     end
-   end
+    @user = User.new(User.search_ldap(session[:user_login]))
+  end
 
   def create_admin_user
     @user = User.new(params[:user])
-    @user.login = session[:cas_user] unless current_user and (current_user.is_admin_in_adminmode? or current_user.is_admin_in_checkoutpersonmode? or current_user.is_checkout_person?)
+    @user.login = session[:user_login] unless current_user and (current_user.is_admin_in_adminmode? or current_user.is_admin_in_checkoutpersonmode? or current_user.is_checkout_person?)
     @user.is_admin = true
     if @user.save
       flash[:notice] = "Successfully created Admin."
@@ -36,7 +37,7 @@ class ApplicationSetupController < ApplicationController
   end
   
   def initialize_app_configs
-     if @app_configs.nil?
+     if AppConfig.first.nil?
        AppConfig.create!({ :site_title => "Reservations",
                            :admin_email => "admin@admin.admin",
                            :department_name => "School of Art Digital Technology Office",
@@ -63,11 +64,26 @@ class ApplicationSetupController < ApplicationController
                            You were supposed to return the equipment you borrowed from us on @return_date@ but because you have failed to do so, you will be charged @late_fee@ / day until the equipment is returned. Failure to return equipment will result in replacement fees and revocation of borrowing privileges.
 
                            Thank you,
-                           @department_name@"
+                           @department_name@",
+
+                           :auth_provider => "CAS",
+                           :ldap_host => "directory.yale.edu",
+                           :ldap_port => 389,
+                           :ldap_login => "uid",
+                           :ldap_base_query => "ou=People,o=yale.edu",
+                           :ldap_first_name => "givenname",
+                           :ldap_last_name => "sn",
+                           :ldap_phone => "telephoneNumber",
+                           :ldap_email => "mail"
                            })
      end
    end
    
+   def login_settings
+     flash[:notice] = "Please choose your authorization method and enter your LDAP server settings here"
+     @app_config = AppConfig.first
+   end
+
    def new_app_configs
      flash[:notice] = "Edit your application settings here."
      @app_config = AppConfig.first
@@ -77,6 +93,10 @@ class ApplicationSetupController < ApplicationController
      @app_config = AppConfig.first   
       if @app_config.update_attributes(params[:app_config])
         flash[:notice] = "Application settings updated successfully."
+        unless current_user
+          redirect_to new_admin_user_path
+          return
+        end
         redirect_to root_path
       else
         flash[:error] = "Error saving application settings."
