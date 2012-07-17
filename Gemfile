@@ -28,6 +28,7 @@ gem "kaminari"
 gem "redcarpet"
 gem 'select2-rails'
 gem 'devise'
+gem 'omniauth-cas'
 
 group :development, :test do
   gem "factory_girl_rails"

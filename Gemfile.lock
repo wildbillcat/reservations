@@ -94,6 +94,7 @@ GEM
       em-websocket (>= 0.2.0)
       guard (>= 1.1.0)
       multi_json (~> 1.0)
+    hashie (1.2.0)
     hike (1.2.1)
     i18n (0.6.0)
     journey (1.0.4)
@@ -127,6 +128,13 @@ GEM
       activerecord (>= 3.0.0)
       activesupport (>= 3.0.0)
     nokogiri (1.5.5)
+    omniauth (1.1.0)
+      hashie (~> 1.2)
+      rack
+    omniauth-cas (0.0.7)
+      addressable (~> 2.2)
+      nokogiri (~> 1.5)
+      omniauth (~> 1.1.0)
     orm_adapter (0.4.0)
     paperclip (3.1.2)
       activemodel (>= 3.0.0)
@@ -267,6 +275,7 @@ DEPENDENCIES
   mysql2
   net-ldap
   nilify_blanks
+  omniauth-cas
   paperclip
   permanent_records (~> 2.1.2)
   pry

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120712202128) do
+ActiveRecord::Schema.define(:version => 20120717171511) do
 
   create_table "accessories_equipment_models", :force => true do |t|
     t.integer  "accessory_id"
@@ -35,6 +35,15 @@ ActiveRecord::Schema.define(:version => 20120712202128) do
     t.text    "overdue_checkout_email_body"
     t.text    "overdue_checkin_email_body"
     t.boolean "overdue_checkin_email_active",          :default => true
+    t.string  "auth_provider"
+    t.string  "ldap_host"
+    t.integer "ldap_port"
+    t.string  "ldap_login"
+    t.string  "ldap_base_query"
+    t.string  "ldap_first_name"
+    t.string  "ldap_last_name"
+    t.string  "ldap_phone"
+    t.string  "ldap_email"
     t.text    "terms_of_service"
   end
 
@@ -130,6 +139,13 @@ ActiveRecord::Schema.define(:version => 20120712202128) do
     t.datetime "updated_at",          :null => false
   end
 
+  create_table "identities", :force => true do |t|
+    t.string   "login"
+    t.string   "password_digest"
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+  end
+
   create_table "requirements", :force => true do |t|
     t.integer  "equipment_model_id"
     t.string   "contact_name"
@@ -186,7 +202,19 @@ ActiveRecord::Schema.define(:version => 20120712202128) do
     t.boolean  "bannedmode",                :default => false
     t.string   "deleted_at"
     t.boolean  "terms_of_service_accepted"
+    t.string   "encrypted_password",        :default => "",    :null => false
+    t.string   "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.integer  "failed_attempts",           :default => 0
+    t.string   "unlock_token"
+    t.datetime "locked_at"
+    t.string   "provider"
+    t.string   "uid"
   end
+
+  add_index "users", ["email"], :name => "index_users_on_email", :unique => true
+  add_index "users", ["reset_password_token"], :name => "index_users_on_reset_password_token", :unique => true
+  add_index "users", ["unlock_token"], :name => "index_users_on_unlock_token", :unique => true
 
   create_table "users_requirements", :id => false, :force => true do |t|
     t.integer "user_id"

@@ -20,7 +20,7 @@ class User < ActiveRecord::Base
                   :affiliation, :is_banned, :is_checkout_person, :is_admin,
                   :adminmode, :checkoutpersonmode, :normalusermode, :bannedmode, 
                   :deleted_at, :requirement_ids, :user_ids, :terms_of_service_accepted,
-                  :created_by_admin
+                  :created_by_admin, :provider, :uid
 
   attr_accessor(:full_query, :created_by_admin)
 

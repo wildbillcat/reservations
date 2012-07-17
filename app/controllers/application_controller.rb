@@ -6,10 +6,11 @@ class ApplicationController < ActionController::Base
   protect_from_forgery # See ActionController::RequestForgeryProtection for details
 
   #before_filter RubyCAS::Filter
-  before_filter :app_setup, :if => lambda {|u| User.all.count == 0 }  
-  before_filter :current_user
+  before_filter :authenticate_user!
+  #before_filter :app_setup, :if => lambda {|u| User.all.count == 0 }  
+  #before_filter :current_user
   before_filter :load_configs
-  before_filter :first_time_user
+  #before_filter :first_time_user
   before_filter :cart
   before_filter :set_view_mode
   #before_filter :bind_pry_before_everything
@@ -120,7 +121,7 @@ class ApplicationController < ActionController::Base
 
   def logout
     @current_user = nil
-    RubyCAS::Filter.logout(self)
+    #RubyCAS::Filter.logout(self)
   end
 
   def require_admin(new_path=root_path)
