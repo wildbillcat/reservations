@@ -1,2 +1,4 @@
 <% title 'Terms of Service' %>
-<%= simple_format "#{@tos}" %>
+<% unless @tos.nil? %>
+  <%= markdown(@tos) %>
+<% end %>

@@ -47,6 +47,14 @@ class EquipmentModel < ActiveRecord::Base
             :max_renewal_times,
             :renewal_days_before_due,  :numericality => { :allow_nil => true, :integer_only => true, :greater_than_or_equal_to => 0 }
 
+  validate :not_associated_with_self
+
+  def not_associated_with_self
+    unless self.associated_equipment_models.where(:id => self.id).blank?
+      errors.add(:associated_equipment_models, "You cannot associate a model with itself. Please deselect " + self.name)
+    end
+  end
+
   nilify_blanks :only => [:deleted_at]
   
   include ApplicationHelper
@@ -56,11 +64,11 @@ class EquipmentModel < ActiveRecord::Base
                   :checkout_procedures_attributes, :checkin_procedures_attributes, :photo, 
                   :documentation, :max_renewal_times, :max_renewal_length, :renewal_days_before_due, :associated_equipment_model_ids
 
-   default_scope where(:deleted_at => nil)
-   
-    def self.include_deleted
-      self.unscoped
-    end
+  default_scope where(:deleted_at => nil)
+ 
+  def self.include_deleted
+    self.unscoped
+  end
 
   def self.catalog_search(query)
     if query.blank? # if the string is blank, return all
@@ -110,7 +118,7 @@ class EquipmentModel < ActiveRecord::Base
   end
   
   def maximum_renewal_length
-    max_renewal_length || category.maximum_renewal_length || 0
+    max_renewal_length || category.maximum_renewal_length
   end
   
   def maximum_renewal_times
@@ -131,39 +139,33 @@ class EquipmentModel < ActiveRecord::Base
     end
   end
 
-  def formatted_description
-    lines = self.description.split(/^/)
+#  def formatted_description
+#    lines = self.description.split(/^/)
 
-    nice_content = "<p>"
-    lines.each do |line|
-      if line.include? "<table>" or line.include? "<td>"
-        nice_content += line
-      else
-        nice_content += line + "<br />"
-      end
-    end
-    nice_content += "</p>"
-  end
+#    nice_content = "<p>"
+#    lines.each do |line|
+#      if line.include? "<table>" or line.include? "<td>"
+#        nice_content += line
+#      else
+#        nice_content += line + "<br />"
+#      end
+#    end
+#    nice_content += "</p>"
+#  end
 
   def photos
     self.documents.images
   end
 
-  def available?(date_range) #This does not actually return true or false
-       qualification_met = true
-       if (a = BlackOut.date_is_blacked_out(date_range.first)) && a.black_out_type_is_hard
-         #add Error about the black out date?
-         return 0
-       end
-       if (a = BlackOut.date_is_blacked_out(date_range.last)) && a.black_out_type_is_hard
-         #add Error about the black out date?
-         return 0
-       end
+  def available?(date_range) #This does not actually return true or false, but rather the number available.
+    qualification_met = true
+      if ((a = BlackOut.date_is_blacked_out(date_range.first)) && a.black_out_type_is_hard) || ((a = BlackOut.date_is_blacked_out(date_range.last)) && a.black_out_type_is_hard) #If start or end of range is blacked out, and that is a hard blackout.
+        return 0
+      end
     overall_count = self.equipment_objects.size
-
     date_range.each do |date|
-      available_on_date = available_count(date)
-      overall_count = available_on_date if available_on_date < overall_count
+       available_on_date = available_count(date)
+       overall_count = available_on_date if available_on_date < overall_count
     end 
     overall_count
   end

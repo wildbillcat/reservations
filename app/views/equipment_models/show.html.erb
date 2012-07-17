@@ -75,6 +75,7 @@
                   This model is not available on the dates you requested. This is because the start date of your reservation, <%= cart.start_date %>, falls on a day for which the administrator has disabled reservations. 
                 </p>
               </div>
+            </div>
             <% elsif (a = BlackOut.date_is_blacked_out(cart.due_date)) && a.black_out_type_is_hard %>
               <div id="qualifications_modal" class="modal hide fade">
                 <div class="modal-header">
@@ -86,6 +87,7 @@
                     This model is not available on the dates you requested. This is because the end date of your reservation, <%= cart.due_date %>, falls on a day for which the administrator has disabled reservations. 
                   </p>
                 </div>
+              </div>
             <% else %>
             
                    <%= link_to "Add to Cart", {:url => add_to_cart_path(@equipment_model)}, 
@@ -141,9 +143,9 @@
 <!-- DESCRIPTION -->
 <section id="description">
   <h2>Description</h2><hr />
-  <p>
-    <%= sanitize(@equipment_model.formatted_description) %>
-  </p>
+    <% unless @equipment_model.description.nil? %>
+      <%= markdown(@equipment_model.description) %>
+    <% end %>
 </section>
 
 <!-- DETAILS -->
