@@ -27,6 +27,7 @@ gem "rails3-jquery-autocomplete"
 gem "kaminari"
 gem "redcarpet"
 gem 'select2-rails'
+gem 'devise'
 
 group :development, :test do
   gem "factory_girl_rails"

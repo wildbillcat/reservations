@@ -5,7 +5,7 @@ class ApplicationController < ActionController::Base
   helper :all # include all helpers, all the time
   protect_from_forgery # See ActionController::RequestForgeryProtection for details
 
-  before_filter RubyCAS::Filter
+  #before_filter RubyCAS::Filter
   before_filter :app_setup, :if => lambda {|u| User.all.count == 0 }  
   before_filter :current_user
   before_filter :load_configs
