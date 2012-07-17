@@ -5,23 +5,22 @@ class ApplicationController < ActionController::Base
   helper :all # include all helpers, all the time
   protect_from_forgery # See ActionController::RequestForgeryProtection for details
 
-  #before_filter RubyCAS::Filter
   before_filter :authenticate_user!
   before_filter :app_setup, :if => lambda {|u| User.all.count == 0 }  
   before_filter :current_user
   before_filter :load_configs
-  #before_filter :first_time_user
+  before_filter :first_time_user
   before_filter :cart
   before_filter :set_view_mode
   #before_filter :bind_pry_before_everything
 
-  #helper_method :current_user
+  helper_method :current_user
   helper_method :cart
   
   #-------- before_filter methods --------
 
   def app_setup
-      redirect_to new_admin_user_path
+      redirect_to login_settings_path
   end
   
   def load_configs
@@ -120,8 +119,8 @@ class ApplicationController < ActionController::Base
   end
 
   def logout
+    session[:cas_user] = nil
     @current_user = nil
-    #RubyCAS::Filter.logout(self)
   end
 
   def require_admin(new_path=root_path)

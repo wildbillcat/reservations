@@ -93,7 +93,9 @@ Reservations::Application.routes.draw do
   
   match 'contact' => 'contact#new', :as => 'contact_us', :via => :get
   match 'contact' => 'contact#create', :as => 'contact_us', :via => :post
-  
+
+  match '/login_settings' => 'application_setup#login_settings', :as => :login_settings
+
   match ':controller(/:action(/:id(.:format)))' 
 
   

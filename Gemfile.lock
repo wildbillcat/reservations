@@ -204,11 +204,6 @@ GEM
       activesupport (>= 3.0)
       railties (>= 3.0)
       rspec (~> 2.10.0)
-    rubycas-client (2.2.1)
-      activesupport
-    rubycas-client-rails (0.1.0)
-      rails (>= 3.0.0)
-      rubycas-client (>= 2.2.0)
     rubyzip (0.9.9)
     sass (3.1.20)
     sass-rails (3.2.5)
@@ -289,8 +284,6 @@ DEPENDENCIES
   rdoc
   redcarpet
   rspec-rails
-  rubycas-client (= 2.2.1)
-  rubycas-client-rails
   sass-rails
   select2-rails
   simple_form

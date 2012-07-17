@@ -92,22 +92,20 @@ class User < ActiveRecord::Base
   end
   
   def self.search_ldap(login)
-    ldap = Net::LDAP.new(:host => "directory.yale.edu", :port => 389)
-    filter = Net::LDAP::Filter.eq("uid", login)
-    attrs = ["givenname", "sn", "eduPersonNickname", "telephoneNumber", "uid",
-             "mail", "collegename", "curriculumshortname", "college", "class"]
-    result = ldap.search(:base => "ou=People,o=yale.edu", :filter => filter, :attributes => attrs)
+    @app_configs = AppConfig.first
+    ldap = Net::LDAP.new(:host => @app_configs.ldap_host, :port => @app_configs.ldap_port)
+    filter = Net::LDAP::Filter.eq(@app_configs.ldap_login, login)
+    attrs = [@app_configs.ldap_login, @app_configs.ldap_first_name, @app_configs.ldap_last_name, 
+             @app_configs.ldap_phone, @app_configs.ldap_email]
+    result = ldap.search(:base => @app_configs.ldap_base_query, :filter => filter, :attributes => attrs)
     unless result.empty?
-    return { :first_name  => result[0][:givenname][0],
-             :last_name   => result[0][:sn][0],
-             :nickname    => result[0][:eduPersonNickname][0],
-             # :phone     => result[0][:telephoneNumber][0],
+    return { :first_name  => result[0][@app_configs.ldap_first_name.to_sym][0],
+             :last_name   => result[0][@app_configs.ldap_last_name.to_sym][0],
+             #:phone     => result[0][@app_configs.ldap_phone.to_sym][0],
              # Above line removed because the phone number in the Yale phonebook is always wrong
-             :login       => result[0][:uid][0],
-             :email       => result[0][:mail][0],
-             :affiliation => [result[0][:curriculumshortname],
-                              result[0][:college],
-                              result[0][:class]].select{ |s| s.length > 0 }.join(" ") }
+             :login       => result[0][@app_configs.ldap_login.to_sym][0],
+             :email       => result[0][@app_configs.ldap_email.to_sym][0] 
+           }
     end
   end
 
