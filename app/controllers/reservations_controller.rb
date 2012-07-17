@@ -202,7 +202,7 @@ class ReservationsController < ApplicationController
 
       # save array to session
       session[:manage_reservation] = {}
-      session[:manage_reservation][:check_out_set] = reservations_to_be_checked_out
+      session[:manage_reservation][:check_out_set] = reservations_to_be_checked_out.map{|r| r.id}
 
       # now exit
       redirect_to reservations_receipt_for_user_path and return
@@ -256,7 +256,7 @@ class ReservationsController < ApplicationController
     
     # save array to session
     session[:manage_reservation] = {}
-    session[:manage_reservation][:check_in_set] = reservations_to_be_checked_in
+    session[:manage_reservation][:check_in_set] = reservations_to_be_checked_in.map{|r| r.id}
 
     # now exit
     redirect_to reservations_receipt_for_user_path and return
@@ -286,14 +286,14 @@ class ReservationsController < ApplicationController
     if !session[:manage_reservation].nil? # if we've checked something in or out
       # set check-in set from session
       if session[:manage_reservation][:check_in_set] != NIL
-        @check_in_set = session[:manage_reservation][:check_in_set]
+        @check_in_set = Reservation.find(session[:manage_reservation][:check_in_set])
       else
         @check_in_set = []
       end
       
       # set check-out set from session
       if session[:manage_reservation][:check_out_set] != NIL
-        @check_out_set = session[:manage_reservation][:check_out_set]
+        @check_out_set = Reservation.find(session[:manage_reservation][:check_out_set])
       else
         @check_out_set = []
       end
