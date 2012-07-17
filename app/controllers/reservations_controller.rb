@@ -315,8 +315,10 @@ class ReservationsController < ApplicationController
 
   #two paths to create receipt emails for checking in and checking out items.
   def checkout_email
-    @reservation =  Reservation.find(params[:id])
-    if UserMailer.checkout_receipt(@reservation).deliver
+    binding.pry
+    @user = User.include_deleted.find(params[:user_id])
+    @check_out_set = Reservation.due_for_checkout(@user)
+    if UserMailer.checkout_receipt(@check_out_set).deliver
       redirect_to :back
       flash[:notice] = "Successfully delivered receipt email."
     else 
@@ -326,8 +328,10 @@ class ReservationsController < ApplicationController
   end
   
   def checkin_email
-    @reservation =  Reservation.find(params[:id])
-    if UserMailer.checkin_receipt(@reservation).deliver
+    binding.pry
+    @user = User.include_deleted.find(params[:user_id])
+    @check_in_set = Reservation.due_for_checkin(@user)
+    if UserMailer.checkin_receipt(@check_in_set).deliver
       redirect_to :back
       flash[:notice] = "Successfully delivered receipt email."
     else 

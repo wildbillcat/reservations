@@ -1,23 +1,24 @@
-Hi <%= @reservation.reserver.name %>,
+Hi <%= @check_in_set.first.reserver.name %>,
 <br />
 
 <p>This is a receipt for your equipment return. </p>
 
-<p>Equipment returned: <%= @reservation.equipment_model.name%> (<%= @reservation.equipment_object.name %>) <br />
-Checkout date: <%= @reservation.checked_out.strftime(" %B %e, %Y at %l:%M%P") %> <br /> 
-Return date: <%= @reservation.checked_in.strftime(" %B %e, %Y at %l:%M%P") %> <br />
+<% @check_in_set.each do |r| %>
+<p>Equipment returned: <%= r.equipment_model.name%> (<%= r.equipment_object.name %>) <br />
+Checkout date: <%= r.checked_out.strftime(" %B %e, %Y at %l:%M%P") %> <br /> 
+Return date: <%= r.checked_in.strftime(" %B %e, %Y at %l:%M%P") %> <br />
 
-<% unless @reservation.notes.nil? %> 
-Notes: <%= simple_format(@reservation.notes) %> <br />
+<% unless r.notes.nil? %> 
+Notes: <%= simple_format(r.notes) %> <br />
 <% end %>
 </p>
-
-<p> <% if (@reservation.due_date - @reservation.checked_in ) < 86400 %>
+<p> 
+<% if (r.due_date - r.checked_in ) < 86400 %>
 			Since the equipment was returned late, you will be charged a late fee of 
-			<%= number_to_currency(@reservation.equipment_model.late_fee) %> per day, 
-			for a total of <%= number_to_currency(((@reservation.checked_in - @reservation.due_date )/86400).to_i*(@reservation.equipment_model.late_fee))%>. </p>
-		<% end %></p>
-			
+			<%= number_to_currency(r.equipment_model.late_fee) %> per day, 
+			for a total of <%= number_to_currency(((r.checked_in - r.due_date )/86400).to_i*(r.equipment_model.late_fee))%>. </p>
+<% end %></p>
+<% end %>		
 			
 
 

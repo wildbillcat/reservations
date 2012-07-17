@@ -25,6 +25,10 @@ Reservations::Application.routes.draw do
 
   match '/reservations/renew/:id' => 'reservations#renew', :as => :renew
   match '/catalog/search' => 'catalog#search', :as => :catalog_search
+  
+  match 'reservations/checkout_email' => 'reservations#checkout_email', :as => :checkout_email
+  match 'reservations/checkin_email' => 'reservations#checkin_email', :as => :checkin_email
+  
 
   resources :reservations do
     member do
@@ -37,7 +41,7 @@ Reservations::Application.routes.draw do
     end
     get :autocomplete_user_last_name, :on => :collection
   end
-  
+    
   match '/black_outs/flash_message' => 'black_outs#flash_message', :as => :flash_message
 
   resources :black_outs do

@@ -31,14 +31,14 @@ class UserMailer < ActionMailer::Base
       mail(:to => complete_reservation.first.reserver.email, :subject => "[Reservation] Confirmation of your reservation")
     end
     
-    def checkout_receipt(reservation)
-      @reservation = reservation
-      mail(:to => reservation.reserver.email, :subject => "[Reservation] Your equipment checkout receipt")
+    def checkout_receipt(check_out_set)
+      @check_out_set = check_out_set
+      mail(:to => check_out_set.first.reserver.email, :subject => "[Reservation] Your equipment checkout receipt")
     end
     
-    def checkin_receipt(reservation)
-      @reservation = reservation
-      mail(:to => reservation.reserver.email, :subject => "[Reservation] Your equipment return receipt")
+    def checkin_receipt(check_in_set)
+      @check_in_set = check_in_set
+      mail(:to => check_in_set.first.reserver.email, :subject => "[Reservation] Your equipment return receipt")
     end
 
 end
