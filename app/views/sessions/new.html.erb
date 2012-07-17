@@ -2,5 +2,18 @@
 <% if @app_configs.auth_provider == "CAS" %>
   <%= link_to "CAS sign in", '/auth/cas/' %>
 <%else %>
-  <%= link_to "Identity sign in", '/auth/identity' %>
+
+  <%= form_tag "/auth/identity/callback" do %>
+    <div class="field">
+      <%= label_tag :auth_key, "Login" %><br>
+      <%= text_field_tag :auth_key %>
+    </div>
+    <div class="field">
+      <%= label_tag :password %><br>
+      <%= password_field_tag :password %>
+    </div>
+    <div class="actions"><%= submit_tag "Login" %></div>
+  <% end %>
+
+  <%= link_to "Register", new_identity_path %>
 <% end %>

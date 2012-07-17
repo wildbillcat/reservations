@@ -97,5 +97,8 @@ Reservations::Application.routes.draw do
 
   match '/auth/cas/callback' => 'sessions#create'
   match '/auth/identity/callback' => 'sessions#create'
+  match '/sessions/auth/identity/callback' => 'sessions#create'
+
+  resources :identities
 
 end

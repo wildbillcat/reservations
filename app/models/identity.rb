@@ -1,3 +1,6 @@
 class Identity < OmniAuth::Identity::Models::ActiveRecord
-  validates :
+  validates_uniqueness_of :login
+
+  auth_key("login")
+
 end
