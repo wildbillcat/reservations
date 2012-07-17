@@ -16,7 +16,7 @@ Devise.setup do |config|
   require 'devise/orm/active_record'
   require "omniauth-cas"
   config.omniauth :cas, :host => 'secure.its.yale.edu/cas'
-  
+  OmniAuth.config.allowed_request_methods = [:post, :get]
 
 
   # ==> Configuration for any authentication mechanism

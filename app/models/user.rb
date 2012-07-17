@@ -5,7 +5,7 @@ class User < ActiveRecord::Base
   # :token_authenticatable, :confirmable,
   # :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable
+         :recoverable, :validatable, :omniauthable, :omniauth_providers => [:cas]
 
   # Setup accessible (or protected) attributes for your model
   attr_accessible :email, :password, :password_confirmation, :remember_me
@@ -118,5 +118,18 @@ class User < ActiveRecord::Base
   def render_name
      [((nickname.nil? || nickname.length == 0) ? first_name : nickname), last_name, login].join(" ")
   end
+
+  def self.find_for_cas(access_token, signed_in_resource=nil)
+    user = User.where(:login => access_token[:uid]).first
+
+    unless user
+      user = User.create(name: data["name"],
+                         email: data["email"],
+                         password: Devise.friendly_token[0,20]
+                        )
+    end
+    user
+  end
+
 
 end

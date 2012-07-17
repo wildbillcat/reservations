@@ -1,6 +1,7 @@
 class ApplicationSetupController < ApplicationController
   skip_filter :first_time_user
   skip_filter :app_setup
+  skip_filter :autorize_user!
   
   before_filter :initialize_app_configs
   before_filter :load_configs

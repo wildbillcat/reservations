@@ -35,15 +35,6 @@ ActiveRecord::Schema.define(:version => 20120717171511) do
     t.text    "overdue_checkout_email_body"
     t.text    "overdue_checkin_email_body"
     t.boolean "overdue_checkin_email_active",          :default => true
-    t.string  "auth_provider"
-    t.string  "ldap_host"
-    t.integer "ldap_port"
-    t.string  "ldap_login"
-    t.string  "ldap_base_query"
-    t.string  "ldap_first_name"
-    t.string  "ldap_last_name"
-    t.string  "ldap_phone"
-    t.string  "ldap_email"
     t.text    "terms_of_service"
   end
 
@@ -137,13 +128,6 @@ ActiveRecord::Schema.define(:version => 20120717171511) do
     t.integer  "reservation_id"
     t.datetime "created_at",          :null => false
     t.datetime "updated_at",          :null => false
-  end
-
-  create_table "identities", :force => true do |t|
-    t.string   "login"
-    t.string   "password_digest"
-    t.datetime "created_at",      :null => false
-    t.datetime "updated_at",      :null => false
   end
 
   create_table "requirements", :force => true do |t|

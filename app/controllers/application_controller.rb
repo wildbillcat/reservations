@@ -7,15 +7,15 @@ class ApplicationController < ActionController::Base
 
   #before_filter RubyCAS::Filter
   before_filter :authenticate_user!
-  #before_filter :app_setup, :if => lambda {|u| User.all.count == 0 }  
-  #before_filter :current_user
+  before_filter :app_setup, :if => lambda {|u| User.all.count == 0 }  
+  before_filter :current_user
   before_filter :load_configs
   #before_filter :first_time_user
   before_filter :cart
   before_filter :set_view_mode
   #before_filter :bind_pry_before_everything
 
-  helper_method :current_user
+  #helper_method :current_user
   helper_method :cart
   
   #-------- before_filter methods --------
