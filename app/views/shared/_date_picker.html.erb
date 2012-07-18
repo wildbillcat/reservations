@@ -1,6 +1,8 @@
 <%#
 
-This is the Javascript necessary for the _date_picker partial, loaded via application.js
+::::::::::THIS IS DOCUMENTATION::::::::::
+
+This is the Javascript necessary for the _date_picker partial, place in application.js
 
   $('.date_start').datepicker({
     onClose: function(dateText, inst) { 
@@ -15,10 +17,10 @@ This is the Javascript necessary for the _date_picker partial, loaded via applic
 
 %>
 
-<div id ="black_out_dates">
-<%= label_tag :start_date, 'Start of Blackout' %>
+<div id ="general_datepicker">
+<%= label_tag :start_date, 'Start Date' %>
       <%= datepicker_input object.class.name.underscore, "start_date", :class => 'date_start span2', :value => object[:start_date].strftime('%m/%d/%Y') %>
 
-    <%= label_tag :end_date, 'End of Blackout' %>
+    <%= label_tag :end_date, 'End Date' %>
       <%= datepicker_input object.class.name.underscore, "end_date", :class => 'date_end span2', :value => object[:end_date].strftime('%m/%d/%Y') %>
 </div>

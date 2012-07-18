@@ -1,0 +1,12 @@
+<script type="text/javascript">
+  $(document).ready(function(){
+    var staticDate = "<%= Date.today.strftime('%m/%d/%Y') %>";
+    $('.equipment_model_calendar').datepicker({
+      inline: true,
+      defaultDate: staticDate
+    });
+  });
+</script>
+
+<%= hidden_field_tag "static_date", Date.today.strftime('%m/%d/%Y') %>
+<div class="equipment_model_calendar"></div>
