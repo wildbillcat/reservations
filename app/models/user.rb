@@ -33,7 +33,8 @@ class User < ActiveRecord::Base
                           :format      => { :with => /\A\S[0-9\+\/\(\)\s\-]*\z/i },
                           :length      => { :minimum => 10 }
   validates :email,       :presence    => true,
-                          :format      => { :with => /^([\w\.%\+\-]+)@([\w\-]+\.)+([\w]{2,})$/i }
+                          :format      => { :with => /^([\w\.%\+\-]+)@([\w\-]+\.)+([\w]{2,})$/i },
+                          :uniqueness => true
   validates :nickname,    :format      => { :with => /^[^0-9`!@#\$%\^&*+_=]+$/ },
                           :allow_blank => true
   validates :terms_of_service_accepted,

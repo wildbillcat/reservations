@@ -4,13 +4,13 @@
   <%= f.error_notification %>
 
   <div class="form-inputs">
-    <%= f.input :email, :required => true, :autofocus => true %>
+    <%= f.input :login, :required => true, :autofocus => true %>
     <%= f.input :password, :required => true %>
     <%= f.input :password_confirmation, :required => true %>
-    <%= f.input :login %>
     <%= f.input :first_name %>
     <%= f.input :last_name %>
     <%= f.input :nickname %>
+    <%= f.input :email, :required => true %>
     <%= f.input :phone %>
     <%= f.input :affiliation, label: "Affiliation", hint: "including college, year, etc"%>
 
