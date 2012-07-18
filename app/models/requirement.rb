@@ -1,11 +1,13 @@
 class Requirement < ActiveRecord::Base
   has_many :equipment_models
+  has_many :requirement_steps, :dependent => :destroy
   has_and_belongs_to_many :users,
                           :class_name => "User",
                           :association_foreign_key => "user_id",
                           :join_table => "users_requirements" # This join table associates users with the requirements that they have fulfilled. To give a user permission to reserve an item with a requirement, go to their Edit page.
-   attr_accessible :user_id, :equipment_model_id, :contact_info, :contact_name, :requirement_ids, :user_ids, :equipment_model_ids
-   #serialize :requirement_steps
+   attr_accessible :user_id, :equipment_model_attributes, :contact_info, :contact_name, :requirement_ids, :user_ids, :equipment_model_ids, :requirement_steps_attributes, :equipment_model_id, :requirement_steps
+   serialize :requirement_steps
+   accepts_nested_attributes_for :requirement_steps, :reject_if => :all_blank, :allow_destroy => true
 
   validates :equipment_model_id, 
             :contact_info, 

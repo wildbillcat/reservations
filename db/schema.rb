@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120712202128) do
+ActiveRecord::Schema.define(:version => 20120717192025) do
 
   create_table "accessories_equipment_models", :force => true do |t|
     t.integer  "accessory_id"
@@ -128,6 +128,19 @@ ActiveRecord::Schema.define(:version => 20120712202128) do
     t.integer  "reservation_id"
     t.datetime "created_at",          :null => false
     t.datetime "updated_at",          :null => false
+  end
+
+  create_table "requirement_steps", :force => true do |t|
+    t.integer  "requirement_id"
+    t.text     "step"
+    t.integer  "order"
+    t.datetime "created_at",     :null => false
+    t.datetime "updated_at",     :null => false
+  end
+
+  create_table "requirement_steps_users", :id => false, :force => true do |t|
+    t.integer "requirement_step_id"
+    t.integer "user_id"
   end
 
   create_table "requirements", :force => true do |t|

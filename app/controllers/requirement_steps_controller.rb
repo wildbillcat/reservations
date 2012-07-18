@@ -1,11 +1,9 @@
-class RequirementsController < ApplicationController
+class RequirementStepsController < ApplicationController
 
   before_filter :require_admin
 
-  # GET /requirements
-  # GET /requirements.xml
   def index
-    @requirements = Requirement.all
+    @requirementSteps = RequirementStep.all
 
     respond_to do |format|
       format.html # index.html.erb
@@ -13,11 +11,9 @@ class RequirementsController < ApplicationController
     end
   end
 
-  # GET /requirements/1
-  # GET /requirements/1.xml
   def show
-    @requirement = Requirement.find(params[:id])
-#    @reqSteps = RequirementStep.order("position")
+    @requirement = Requirement.find(RequirementStep.find(params[:id]).requirement)
+    @requirementSteps = RequirementStep.order("position")
 
     respond_to do |format|
       format.html # show.html.erb
@@ -45,7 +41,6 @@ class RequirementsController < ApplicationController
   # POST /requirements.xml
   def create
     @requirement = Requirement.new(params[:requirement])
-    binding.pry
      respond_to do |format|
       if @requirement.save
         format.html { redirect_to(@requirement, :notice => 'Requirement was successfully created.') }
@@ -84,10 +79,4 @@ class RequirementsController < ApplicationController
       format.xml  { head :ok }
     end
   end
-
-  def progress
-  @requirements_with_steps =  Requirement.all.collect{|req| !req.requirement_steps.blank? ? req : nil}.compact
-  
-  end
-
 end

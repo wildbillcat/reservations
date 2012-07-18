@@ -1,0 +1,38 @@
+<script>
+$(document).ready(function() {
+  $('#equipment_model_id').change(function() {
+
+      var model_id = $("#equipment_model_id").val()
+      var url = window.location.href;    
+      if (url.indexOf('?') > -1){
+         url = url.substring(0,url.indexOf('?'));
+         url += ('?em=' + model_id)
+      }else{
+         url += ('?em=' + model_id) 
+      }
+      window.location.href = url;
+  });
+});
+</script>
+
+
+<% unless params[:em].nil? %>
+  <% if EquipmentModel.where(:id => params[:em].to_i).blank? %>
+    <% @requirements_with_steps = @requirements_with_steps.collect{|r| [EquipmentModel.find(r.equipment_model_id).name, r.equipment_model_id]} %>
+  <% else %>
+    <%  @requirements_with_steps = @requirements_with_steps.collect{|r| [EquipmentModel.find(r.equipment_model_id).name, r.equipment_model_id]}.unshift([EquipmentModel.find(params[:em].to_i).name, params[:em].to_i]).uniq %>
+  <% end %>
+<% else %>
+<% @requirements_with_steps = @requirements_with_steps.collect{|r| [EquipmentModel.find(r.equipment_model_id).name, r.equipment_model_id]} %>
+<% end %>
+<% @a = nil %>
+
+<%  %>
+<%= select("equipment_model", "id", @requirements_with_steps, { :include_blank => false, :id => "select_me" }) %>
+
+<% binding.pry %>
+ <%= Requirement.where(:equipment_model_id => params[:em].to_i).first.requirement_steps %>
+
+<div id="lol"></div>
+
+<%= params[:user_id] %>

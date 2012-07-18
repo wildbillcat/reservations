@@ -3,6 +3,7 @@ Reservations::Application.routes.draw do
   root :to => 'catalog#index'
 
   resources :requirements
+  resources :requirement_steps
 
   resources :documents, :equipment_objects
   
@@ -50,7 +51,7 @@ Reservations::Application.routes.draw do
   match '/reservations/manage/:user_id' => 'reservations#manage', :as => :manage_reservations_for_user
   match '/reservations/receipt/:user_id' => 'reservations#receipt', :as => :reservations_receipt_for_user
   match '/reservations/current/:user_id' => 'reservations#current', :as => :current_reservations_for_user
-  
+  match '/requirements/progress/:user_id' => 'requirements#progress', :as => :track_progress_for_user
   
   # reservation checkout / check-in actions
   match '/reservations/checkout/:user_id' => 'reservations#checkout', :as => :checkout
