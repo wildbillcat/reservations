@@ -13,13 +13,6 @@
 
 ActiveRecord::Schema.define(:version => 20120717221217) do
 
-  create_table "accessories_equipment_models", :force => true do |t|
-    t.integer  "accessory_id"
-    t.integer  "equipment_model_id"
-    t.datetime "created_at",         :null => false
-    t.datetime "updated_at",         :null => false
-  end
-
   create_table "app_configs", :force => true do |t|
     t.boolean "upcoming_checkin_email_active",         :default => true
     t.boolean "overdue_checkout_email_active",         :default => true
