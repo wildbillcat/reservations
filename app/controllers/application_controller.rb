@@ -5,8 +5,8 @@ class ApplicationController < ActionController::Base
   helper :all # include all helpers, all the time
   protect_from_forgery # See ActionController::RequestForgeryProtection for details
 
-  before_filter :authenticate_user!
   before_filter :app_setup, :if => lambda {|u| User.all.count == 0 }  
+  before_filter :authenticate_user!
   before_filter :current_user
   before_filter :load_configs
   before_filter :first_time_user
@@ -79,7 +79,7 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user
-    @current_user ||= User.include_deleted.find_by_login(session[:cas_user]) if session[:cas_user]
+    @current_user ||= User.include_deleted.find_by_login(session[:user_login]) if session[:user_login]
   end
   
 
@@ -119,7 +119,7 @@ class ApplicationController < ActionController::Base
   end
 
   def logout
-    session[:cas_user] = nil
+    session[:user_login] = nil
     @current_user = nil
   end
 

@@ -121,8 +121,8 @@ class User < ActiveRecord::Base
     user = User.where(:login => access_token[:uid]).first
 
     unless user
-      user = User.create(name: data["name"],
-                         email: data["email"],
+      user = User.create(
+                         login: access_token.uid,
                          password: Devise.friendly_token[0,20]
                         )
     end
