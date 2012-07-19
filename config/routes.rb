@@ -5,7 +5,9 @@ Reservations::Application.routes.draw do
                                       :skip => [:registrations]
   as :user do
     post 'users/registration/create' => 'users/registrations#create', :as => 'create_user_registration'
+    post 'registration' => 'users/registrations#create', :as => 'create_user_registration'
     get 'users/registration/edit' => 'users/registrations#edit', :as => 'edit_user_registration'
+    get 'users/registration/new' => 'users/registrations#new', :as => 'new_user_registration'
     put 'registration/' => 'users/registrations#update', :as => 'user_registration'
   end
 

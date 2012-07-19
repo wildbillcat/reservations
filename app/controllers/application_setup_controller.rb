@@ -92,11 +92,10 @@ class ApplicationSetupController < ApplicationController
       unless current_user
         if @app_config.auth_provider == "CAS"
           redirect_to user_omniauth_authorize_path(:cas)
-          return
         else
-          redirect_to new_admin_user_path
-          return
+          redirect_to new_user_registration_path
         end
+        return
       end
       redirect_to root_path
     else

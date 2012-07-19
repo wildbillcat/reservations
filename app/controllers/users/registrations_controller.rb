@@ -18,6 +18,8 @@ class Users::RegistrationsController < Devise::RegistrationsController
       resource.is_admin = 1 
       resource.save
       session[:user_login] = resource.login
+      sign_in(resource_name, resource)
+      binding.pry
       redirect_to new_app_configs_path
       return
     end
