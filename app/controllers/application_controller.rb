@@ -7,14 +7,12 @@ class ApplicationController < ActionController::Base
 
   before_filter :app_setup, :if => lambda {|u| User.all.count == 0 }  
   before_filter :authenticate_user!
-  before_filter :current_user
   before_filter :load_configs
-  before_filter :first_time_user
+  #before_filter :first_time_user
   before_filter :cart
   before_filter :set_view_mode
   #before_filter :bind_pry_before_everything
 
-  helper_method :current_user
   helper_method :cart
   
   #-------- before_filter methods --------
@@ -78,11 +76,6 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def current_user
-    @current_user ||= User.include_deleted.find_by_login(session[:user_login]) if session[:user_login]
-  end
-  
-
   def bind_pry_before_everything
     binding.pry
   end
@@ -118,10 +111,11 @@ class ApplicationController < ActionController::Base
     redirect_to root_path
   end
 
-  def logout
-    session[:user_login] = nil
-    @current_user = nil
-  end
+  #def logout
+    #session[:user_login] = nil
+    #@current_user = nil
+    #redirect_to destroy_user_session_path
+  #end
 
   def require_admin(new_path=root_path)
     restricted_redirect_to(new_path) unless current_user.is_admin_in_adminmode?

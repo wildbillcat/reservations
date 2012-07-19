@@ -1,6 +1,13 @@
 Reservations::Application.routes.draw do
    
-  devise_for :users, :controllers => {:sessions => "users/sessions", :registrations => "users/registrations", :omniauth_callbacks => "users/omniauth_callbacks" }
+  devise_for :users, :controllers => {:sessions => "users/sessions",
+                                      :omniauth_callbacks => "users/omniauth_callbacks" },
+                                      :skip => [:registrations]
+  as :user do
+    post 'users/registration/create' => 'users/registrations#create', :as => 'create_user_registration'
+    get 'users/registration/edit' => 'users/registrations#edit', :as => 'edit_user_registration'
+    put 'registration/' => 'users/registrations#update', :as => 'user_registration'
+  end
 
   root :to => 'catalog#index'
 

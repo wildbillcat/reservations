@@ -1,6 +1,8 @@
 class CatalogController < ApplicationController
   layout 'application_with_sidebar'
-  
+
+  skip_filter :authenticate_user!, :only => [:index, :search]
+
   def index
     @reserver_id = session[:cart].reserver_id
     #push accessories to bottom by removing and reinserting

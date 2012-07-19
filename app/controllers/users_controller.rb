@@ -47,6 +47,9 @@ class UsersController < ApplicationController
     @user = User.new(params[:user])
     @user.login = session[:user_login] unless current_user and current_user.can_checkout?
     @user.is_admin = true if User.count == 0
+    if (@app_configs.auth_provider == "CAS" || current_user.is_admin_in_adminmode? )
+      @user.password = Devise.friendly_token[0,20]
+    end
     if @user.save
       respond_to do |format|
         flash[:notice] = "Successfully created user."

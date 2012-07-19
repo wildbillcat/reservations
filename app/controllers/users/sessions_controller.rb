@@ -10,4 +10,12 @@ class Users::SessionsController < Devise::SessionsController
     super
   end
 
+  def destroy
+    super
+    cas_logout = "<a href=\"https://#{CAS_HOST}/logout\">here</a>"
+    if @app_configs.auth_provider == "CAS"
+      flash[:notice] = "You have successfully signed out of #{@app_configs.site_title}.
+      If you would like to sign out of CAS as well please click #{cas_logout}.".html_safe
+    end
+  end
 end

@@ -3,6 +3,7 @@ class EquipmentModelsController < ApplicationController
   
   before_filter :require_admin
   skip_before_filter :require_admin, :only => [:index, :show]
+  skip_filter :authenticate_user!, :only => [:index, :show]
 
   require 'activationhelper'
   include ActivationHelper

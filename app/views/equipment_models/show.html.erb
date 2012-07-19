@@ -131,7 +131,7 @@
     <% if @equipment_model.documentation.exists? %>
       <li><a href="#documentation">Documentation</a></li>
     <% end %>
-    <% if current_user.is_admin_in_adminmode? %>
+    <% if current_user && current_user.is_admin_in_adminmode? %>
       <li><a href="#items">Items</a></li>
       <li><a href="#procedures">Procedures</a></li>
     <% end %>
@@ -160,7 +160,7 @@
       <h4>Replacement Fee</h4>
     <% end %>
     <%= content_tag :div, :class => 'span2' do %>
-      <% if current_user.is_admin_in_adminmode? %>
+      <% if current_user && current_user.is_admin_in_adminmode? %>
         <h4>Max. Per User</h4>
       <% end %>
     <% end %>
@@ -174,7 +174,7 @@
       <%= number_to_currency(@equipment_model.replacement_fee) %>
     <% end %>
     <%= content_tag :div, :class => 'span2' do %>      
-      <%= @equipment_model.maximum_per_user if current_user.is_admin_in_adminmode? %>
+      <%= @equipment_model.maximum_per_user if current_user &&current_user.is_admin_in_adminmode? %>
     <% end %>
   <% end %>
 </section>
@@ -209,14 +209,14 @@
         <h2>Requirements</h2><hr/>
           <p>
              This object requires special permission before it can be reserved. Users who wish to reserve this item must receive approval from <%= reqs.first.contact_name %> first. 
-           <% if current_user.is_admin_in_adminmode? %> For more specific information, see the <%= link_to "Model Requirements Page", requirements_path %>
+           <% if current_user && current_user.is_admin_in_adminmode? %> For more specific information, see the <%= link_to "Model Requirements Page", requirements_path %>
            <% end %> 
           </p>
       </section>
     <% end %>
 
 <!-- ITEMS -->
-<% if current_user.is_admin_in_adminmode? %>
+<% if current_user && current_user.is_admin_in_adminmode? %>
   <section id="items">
     <h2>Items</h2><hr />
     <p>
@@ -276,7 +276,7 @@
 
 
 <div class="form-actions">
-  <% if current_user.is_admin_in_adminmode? %>
+  <% if current_user && current_user.is_admin_in_adminmode? %>
     <%= link_to "Edit "+@equipment_model.name.truncate(30), edit_equipment_model_path(@equipment_model), :class => 'btn' %>
     <%= link_to "Destroy "+@equipment_model.name.truncate(30), @equipment_model, :confirm => 'This will permanently delete the Object from your database and could have unintended consequences. You might break all the things. Are you sure?', :method => :delete, :class => 'btn btn-danger' %>
   <% end %>

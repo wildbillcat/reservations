@@ -17,7 +17,8 @@ class ApplicationSetupController < ApplicationController
   def new_admin_user
     flash[:notice] = "Welcome to Reservations! Create your user and you will be guided 
                       through a setup to get your application up and running."
-    @user = User.new(User.search_ldap(session[:user_login]))
+    @user = User.new
+    @user.login = session[:user_login] #default to current login
   end
   def create_admin_user
     @user = User.new(params[:user])
@@ -89,8 +90,13 @@ class ApplicationSetupController < ApplicationController
     if @app_config.update_attributes(params[:app_config])
       flash[:notice] = "Application settings updated successfully."
       unless current_user
-        redirect_to new_user_registration_path
-        return
+        if @app_config.auth_provider == "CAS"
+          redirect_to user_omniauth_authorize_path(:cas)
+          return
+        else
+          redirect_to new_admin_user_path
+          return
+        end
       end
       redirect_to root_path
     else
