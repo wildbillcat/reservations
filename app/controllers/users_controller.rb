@@ -105,17 +105,7 @@ class UsersController < ApplicationController
   end
 
   def self.find_for_cas(access_token, signed_in_resource=nil)
-    data = access_token
-    user = User.where(:login => data[":uid"]).first
-
-# TODO fix code below
-    unless user
-      user = User.create(name: data["name"],
-                         email: data["email"],
-                         password: Devise.friendly_token[0,20]
-                        )
-    end
-    user
+    user = User.where(:login => access_token[":uid"]).first
   end
 
 end

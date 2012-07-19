@@ -12,17 +12,19 @@ class Users::RegistrationsController < Devise::RegistrationsController
   end
 
   def create
+    binding.pry
 
+    build_resource
     if User.first.nil?
-      build_resource
       resource.is_admin = 1 
       resource.save
       session[:user_login] = resource.login
       sign_in(resource_name, resource)
-      binding.pry
       redirect_to new_app_configs_path
       return
     end
+
+    resource.login = resource.email
 
     super
 

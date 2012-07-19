@@ -8,7 +8,6 @@ class ApplicationController < ActionController::Base
   before_filter :app_setup, :if => lambda {|u| User.all.count == 0 }  
   before_filter :authenticate_user!
   before_filter :load_configs
-  #before_filter :first_time_user
   before_filter :cart
   before_filter :set_view_mode
   #before_filter :bind_pry_before_everything
@@ -23,14 +22,6 @@ class ApplicationController < ActionController::Base
   
   def load_configs
     @app_configs = AppConfig.first
-  end
-
-  def first_time_user
-    if current_user.nil? && params[:action] != "terms_of_service"
-      flash[:notice] = "Hey there! Since this is your first time making a reservation, we'll
-        need you to supply us with some basic contact information."
-      redirect_to new_user_path
-    end
   end
 
   def cart
