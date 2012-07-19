@@ -157,9 +157,9 @@ class EquipmentModel < ActiveRecord::Base
     self.documents.images
   end
 
-  def available?(date_range) #This does not actually return true or false, but rather the number available.
+  def available?(date_range) # This does not actually return true or false, but rather the number available.
     qualification_met = true
-      if ((a = BlackOut.date_is_blacked_out(date_range.first)) && a.black_out_type_is_hard) || ((a = BlackOut.date_is_blacked_out(date_range.last)) && a.black_out_type_is_hard) #If start or end of range is blacked out, and that is a hard blackout.
+      if ((a = BlackOut.date_is_blacked_out(date_range.first)) && a.black_out_type_is_hard) || ((a = BlackOut.date_is_blacked_out(date_range.last)) && a.black_out_type_is_hard) # If start or end of range is blacked out, and that is a hard blackout.
         return 0
       end
     overall_count = self.equipment_objects.size
@@ -170,7 +170,7 @@ class EquipmentModel < ActiveRecord::Base
     overall_count
   end
   
-  def model_restricted?(reserver_id) #Returns 0 if the reserver is ineligible to checkout the model.
+  def model_restricted?(reserver_id) # Returns 0 if the reserver is ineligible to check out the model.
     qualification_met = false
     unless (Requirement.where(:equipment_model_id => self.id)).empty?
       qualification_met = true        
@@ -188,6 +188,7 @@ class EquipmentModel < ActiveRecord::Base
     # get the total number of objects of this kind
     # then subtract the total quantity currently checked out, reserved, or overdue
     # TODO: the system does not account for early checkouts; but early checkouts are no longer possible, so non-issue?
+    # Note that reserved_count also includes the number of reservations currently checked out
 
     reserved_count = Reservation.where("checked_in IS NULL and equipment_model_id = ? and start_date <= ? and due_date >= ?", self.id, date.to_time.utc, date.to_time.utc).size
     overdue_count = Reservation.where("checked_in IS NULL and checked_out IS NOT NULL and equipment_model_id = ? and due_date <= ?", self.id, Date.today.to_time.utc).size
@@ -201,6 +202,25 @@ class EquipmentModel < ActiveRecord::Base
 
   def fake_category_id
     self
+  end
+  
+  def max_available(date_range)
+    max_count = 0 # initialize
+    date_range.each do |date|
+      if available_count(date) > max_count
+        max_count = available_count(date)
+      end
+    end
+    return max_count
+  end
+
+  def calendar_data(date_range)
+    availability_hash = {} # initialize
+    date_range.each do |date|
+      # associate each day with the available_count for that day
+      availability_hash[date] = available_count(date)
+    end
+    return availability_hash
   end
 
 end
