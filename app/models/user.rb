@@ -120,6 +120,14 @@ class User < ActiveRecord::Base
 
   def self.find_for_cas(access_token, signed_in_resource=nil)
     user = User.where(:login => access_token[:uid]).first
+
+    unless user
+      user = User.create(
+                         login: access_token.uid,
+                         password: Devise.friendly_token[0,20]
+                        )
+    end
+    user
   end
 
 

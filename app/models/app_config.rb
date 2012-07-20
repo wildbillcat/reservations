@@ -7,7 +7,7 @@ class AppConfig < ActiveRecord::Base
                   :overdue_checkin_email_active, :reservation_confirmation_email_active,
                   :default_per_cat_page, :terms_of_service, :favicon, :auth_provider,
                   :ldap_host, :ldap_first_name, :ldap_last_name, :ldap_port,
-                  :ldap_phone, :ldap_login, :ldap_email
+                  :ldap_phone, :ldap_login, :ldap_email, :ldap_base_query
 
   has_attached_file :favicon, url: "/system/:attachment/:id/:style/favicon.:extension"
  

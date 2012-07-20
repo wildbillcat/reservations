@@ -19,8 +19,8 @@ class ApplicationSetupController < ApplicationController
     end
     flash[:notice] = "Welcome to Reservations! Create your user and you will be guided 
                       through a setup to get your application up and running."
-    @user = User.new
-    @user.login = session[:user_login] #default to current login
+    @user = User.new(User.search_ldap(session[:user_login]))
+    
   end
 
   def create_admin_user
