@@ -1,16 +1,13 @@
 <%= simple_form_for @user,  :html => { :class => "form-horizontal" }, :remote => true do |f| %>
   <%= f.error_notification %>
-  <% if current_user and (current_user.is_admin_in_adminmode? or ((current_user.is_admin_in_checkoutpersonmode? or current_user.is_checkout_person?) and @user.id == NIL)) %>
+  <% if current_user && current_user.can_checkout? && @app_configs.auth_provider == "CAS" %>
     <%= f.input :login %>
     <% else %>
-      <%= f.input :login, :readonly => true, :input_html => {:value => @user.login}%>
+      <%= f.input :login, :as => :hidden, :input_html => {:value => @user.login}%>
     <% end %>
-    <%= f.input :first_name %>
-    <%= f.input :last_name %>
-    <%= f.input :nickname %>
-    <%= f.input :phone %>
+
     <%= f.input :email %>
-    <%= f.input :affiliation, label: "Affiliation", hint: "including college, year, etc"%>
+    <%= render :partial => "profile_info", :locals => {:f => f} %>
 
     <% if params[:from_cart] == "true" %>
       <%= hidden_field_tag(:from_cart, true) %>

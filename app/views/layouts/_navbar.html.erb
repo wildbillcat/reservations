@@ -115,7 +115,9 @@
       <% end %>
       <!-- Current User Dropdown -->
       <ul class="nav pull-right" id="logged_in">
-      <% if current_user.nil? %>
+      <% if current_user.nil? && @app_configs.auth_provider == "CAS" %>
+        <li><%= link_to "Sign In with CAS", new_user_session_path %></li>
+      <% elsif current_user.nil? && @app_configs.auth_provider == "Devise" %>
         <li><%= link_to "Sign In", new_user_session_path %></li>
       <% elsif current_user %>
       	<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-user"></i> 

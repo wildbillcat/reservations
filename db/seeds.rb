@@ -46,6 +46,7 @@ else
         u.adminmode = false
         u.is_checkout_person = [true, false].sample
         u.password = Devise.friendly_token[0,20]
+        u.confirmed_at = Time.now
       end
     end
     user[0].is_checkout_person = true

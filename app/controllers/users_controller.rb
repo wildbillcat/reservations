@@ -2,9 +2,9 @@ class UsersController < ApplicationController
   layout 'application_with_sidebar', only: [:show, :edit]
   
   #necessary to set up initial users and admins
-  skip_filter :first_time_user, :only => [:new, :create]
   skip_filter :new_admin_user, :only => [:new, :create]
   skip_filter :app_setup, :only => [:new, :create]
+  skip_filter :authenticate_user!, :only => [:new, :create], :if => lambda {|u| session[:user_login]}
   
   
   skip_filter :cart, :only => [:new, :create]
@@ -47,9 +47,15 @@ class UsersController < ApplicationController
     @user = User.new(params[:user])
     @user.login = session[:user_login] unless current_user and current_user.can_checkout?
     @user.is_admin = true if User.count == 0
+
+    @user.skip_confirmation! if @app_configs.auth_provider == "CAS"
+
+    @user.login = @user.email if (@app_configs.auth_provider == "Devise")
+    
     if (@app_configs.auth_provider == "CAS" || current_user.is_admin_in_adminmode? )
       @user.password = Devise.friendly_token[0,20]
     end
+
     if @user.save
       respond_to do |format|
         flash[:notice] = "Successfully created user."
@@ -64,6 +70,10 @@ class UsersController < ApplicationController
 
   def edit
     @user = User.include_deleted.find(params[:id])
+
+    if (@user == current_user && @app_configs.auth_provider == "Devise")
+      redirect_to edit_user_registration_path
+    end
     require_user(@user)
   end
 

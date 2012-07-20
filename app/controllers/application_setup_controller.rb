@@ -5,7 +5,7 @@ class ApplicationSetupController < ApplicationController
   
   before_filter :initialize_app_configs
   before_filter :load_configs
-  before_filter :new_admin_user, :except => [:login_settings, :create_app_configs]
+  #before_filter :new_admin_user, :except => [:login_settings, :create_app_configs]
   before_filter :redirect_if_not_first_run
   
 
@@ -15,16 +15,21 @@ class ApplicationSetupController < ApplicationController
   end
 
   def new_admin_user
+    if User.first
+      redirect_to new_app_configs_path
+    end
     flash[:notice] = "Welcome to Reservations! Create your user and you will be guided 
                       through a setup to get your application up and running."
     @user = User.new
     @user.login = session[:user_login] #default to current login
   end
+
   def create_admin_user
     @user = User.new(params[:user])
     @user.password = Devise.friendly_token[0,20] if @app_configs.auth_provider == "CAS"
     @user.login = session[:user_login] unless current_user and current_user.can_checkout?
     @user.is_admin = true
+    @user.skip_confirmation!
     if @user.save
       flash[:notice] = "Successfully created Admin."
       redirect_to new_app_configs_path
