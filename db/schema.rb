@@ -14,30 +14,34 @@
 ActiveRecord::Schema.define(:version => 20120719221423) do
 
   create_table "app_configs", :force => true do |t|
-    t.boolean "upcoming_checkin_email_active",         :default => true
-    t.boolean "overdue_checkout_email_active",         :default => true
-    t.boolean "reservation_confirmation_email_active", :default => true
-    t.string  "site_title"
-    t.string  "admin_email"
-    t.string  "department_name"
-    t.string  "contact_link_location"
-    t.string  "home_link_text"
-    t.string  "home_link_location"
-    t.integer "default_per_cat_page"
-    t.text    "upcoming_checkin_email_body"
-    t.text    "overdue_checkout_email_body"
-    t.text    "overdue_checkin_email_body"
-    t.boolean "overdue_checkin_email_active",          :default => true
-    t.text    "terms_of_service"
-    t.string  "auth_provider"
-    t.string  "ldap_host"
-    t.integer "ldap_port"
-    t.string  "ldap_login"
-    t.string  "ldap_base_query"
-    t.string  "ldap_first_name"
-    t.string  "ldap_last_name"
-    t.string  "ldap_phone"
-    t.string  "ldap_email"
+    t.boolean  "upcoming_checkin_email_active",         :default => true
+    t.boolean  "overdue_checkout_email_active",         :default => true
+    t.boolean  "reservation_confirmation_email_active", :default => true
+    t.string   "site_title"
+    t.string   "admin_email"
+    t.string   "department_name"
+    t.string   "contact_link_location"
+    t.string   "home_link_text"
+    t.string   "home_link_location"
+    t.integer  "default_per_cat_page"
+    t.text     "upcoming_checkin_email_body"
+    t.text     "overdue_checkout_email_body"
+    t.text     "overdue_checkin_email_body"
+    t.boolean  "overdue_checkin_email_active",          :default => true
+    t.text     "terms_of_service"
+    t.string   "auth_provider"
+    t.string   "ldap_host"
+    t.integer  "ldap_port"
+    t.string   "ldap_login"
+    t.string   "ldap_base_query"
+    t.string   "ldap_first_name"
+    t.string   "ldap_last_name"
+    t.string   "ldap_phone"
+    t.string   "ldap_email"
+    t.string   "favicon_file_name"
+    t.string   "favicon_content_type"
+    t.integer  "favicon_file_size"
+    t.datetime "favicon_updated_at"
   end
 
   create_table "black_outs", :force => true do |t|
@@ -49,6 +53,7 @@ ActiveRecord::Schema.define(:version => 20120719221423) do
     t.text     "black_out_type"
     t.datetime "created_at",         :null => false
     t.datetime "updated_at",         :null => false
+    t.integer  "set_id"
   end
 
   create_table "categories", :force => true do |t|
