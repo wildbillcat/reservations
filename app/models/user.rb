@@ -20,7 +20,7 @@ class User < ActiveRecord::Base
                   :affiliation, :is_banned, :is_checkout_person, :is_admin,
                   :adminmode, :checkoutpersonmode, :normalusermode, :bannedmode, 
                   :deleted_at, :requirement_ids, :user_ids, :terms_of_service_accepted,
-                  :created_by_admin, :provider, :uid
+                  :created_by_admin
 
   attr_accessor(:full_query, :created_by_admin)
 
@@ -120,14 +120,6 @@ class User < ActiveRecord::Base
 
   def self.find_for_cas(access_token, signed_in_resource=nil)
     user = User.where(:login => access_token[:uid]).first
-
-    unless user
-      user = User.create(
-                         login: access_token.uid,
-                         password: Devise.friendly_token[0,20]
-                        )
-    end
-    user
   end
 
 

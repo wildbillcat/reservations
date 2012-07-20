@@ -5,7 +5,6 @@ class ApplicationSetupController < ApplicationController
   
   before_filter :initialize_app_configs
   before_filter :load_configs
-  #before_filter :new_admin_user, :except => [:login_settings, :create_app_configs]
   before_filter :redirect_if_not_first_run
   
 

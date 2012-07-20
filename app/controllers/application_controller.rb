@@ -102,12 +102,6 @@ class ApplicationController < ActionController::Base
     redirect_to root_path
   end
 
-  #def logout
-    #session[:user_login] = nil
-    #@current_user = nil
-    #redirect_to destroy_user_session_path
-  #end
-
   def require_admin(new_path=root_path)
     restricted_redirect_to(new_path) unless current_user.is_admin_in_adminmode?
   end

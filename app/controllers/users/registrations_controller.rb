@@ -17,6 +17,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
 
     resource.login = resource.email
+
     if User.first.nil?
       resource.is_admin = 1 
       resource.skip_confirmation!
@@ -27,6 +28,9 @@ class Users::RegistrationsController < Devise::RegistrationsController
       return
     end
 
+   # The code below is content of Devise Registrations#create method except for build_resource because then
+  # it rebuilds it and forgets about setting the login to be e-mail so the validation fails 
+    
     if resource.save
       if resource.active_for_authentication?
         set_flash_message :notice, :signed_up if is_navigational_format?
