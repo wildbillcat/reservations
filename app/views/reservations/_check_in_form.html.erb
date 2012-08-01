@@ -1,7 +1,7 @@
 <% if check_in_form.due_date.to_date < Date.today %>
-  <div class="well-nomargin span4 warning"> <%# also change color %>
+  <div class="well-nomargin span4 warning checkin"> <%# also change color %>
 <% else %>
-  <div class="well-nomargin span4">
+  <div class="well-nomargin span4 checkin">
 <% end %>
   <header>
     <h3><%= link_to "Reservation ##{check_in_form.id}", check_in_form %></h3>
@@ -17,6 +17,7 @@
     <p>
       <p><h4>Notes</h4></p>
 		  <%= text_area_tag "reservations[#{check_in_form.id}][notes]", check_in_form.notes, class: 'span3', rows: 6 %>
+		  <%= render :partial => 'shared/markdown_button' %>
     </p>
 
     <p>

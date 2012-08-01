@@ -1,20 +1,20 @@
-Hi <%= @check_out_set.first.reserver.name %>,
+Hi <%#= @check_out_set.first.reserver.name %>,
 <br />
 
 <p>This is a receipt for your equipment checkout. </p>
 
-<% @check_out_set.each do |r| %>
-<p>Equipment picked up: <%= r.equipment_model.name%> (<%= r.equipment_object.name %>) <br />
-Checkout date: <%= r.checked_out.strftime(" %B %e, %Y at %l:%M%P") %> <br />
-Due date: <%= r.due_date.strftime("%B %e, %Y") %> <br />
-<% unless r.notes.nil? %> 
-Notes: <%= simple_format(r.notes) %> <br />
-<% end %>
+<%# @check_out_set.each do |r| %>
+<p>Equipment picked up: <%#= r.equipment_model.name%> (<%#= r.equipment_object.name %>) <br />
+Checkout date: <%#= r.checked_out.strftime(" %B %e, %Y at %l:%M%P") %> <br />
+Due date: <%#= r.due_date.strftime("%B %e, %Y") %> <br />
+<%# unless r.notes.nil? %> 
+Notes: <%#= simple_format(r.notes) %> <br />
+<%# end %>
 </p>
 <p>As a reminder, overdue equipment will incur a late fee of 
-	<%= number_to_currency(r.equipment_model.late_fee) %> per day. </p>
+	<%#= number_to_currency(r.equipment_model.late_fee) %> per day. </p>
 <% end %>
 <br />
 
 Sincerely, <br />
-<%= AppConfig.first.department_name %> 
+<%#= AppConfig.first.department_name %> 

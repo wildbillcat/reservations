@@ -62,14 +62,11 @@ class ReservationsController < ApplicationController
     respond_to do |format|
       Reservation.transaction do
         begin
-          cart.items.each do |item|
-            emodel = item.equipment_model
-            item.quantity.times do |q|    # accounts for reserving multiple equipment objects of the same equipment model (mainly for admins)
-              @reservation = Reservation.new(params[:reservation])
-              @reservation.equipment_model =  emodel
-              @reservation.save
-              complete_reservation << @reservation
-            end
+          cart.cart_reservations.each do |cart_res|
+            @reservation = Reservation.new(params[:reservation])
+            @reservation.equipment_model =  cart_res.equipment_model
+            @reservation.save!
+            complete_reservation << @reservation
           end
           session[:cart] = Cart.new
           unless @app_configs.reservation_confirmation_email_active == false 
@@ -193,16 +190,14 @@ class ReservationsController < ApplicationController
         reservation.save # save!
       end
 
-      # save array to session
-      session[:manage_reservation] = {}
-      session[:manage_reservation][:check_out_set] = reservations_to_be_checked_out.map{|r| r.id}
-
-      # now exit
-      redirect_to reservations_receipt_for_user_path and return
+      # prep for receipt page and exit
+      @user = reserver
+      @check_in_set = []
+      @check_out_set = reservations_to_be_checked_out
+      render 'receipt' and return
   end
   
   def checkin
-
     reservations_to_be_checked_in = []
     
     params[:reservations].each do |reservation_id, reservation_hash|
@@ -247,12 +242,11 @@ class ReservationsController < ApplicationController
       reservation.save
     end
     
-    # save array to session
-    session[:manage_reservation] = {}
-    session[:manage_reservation][:check_in_set] = reservations_to_be_checked_in.map{|r| r.id}
-
-    # now exit
-    redirect_to reservations_receipt_for_user_path and return
+    # prep for receipt page and exit
+    @user = reservations_to_be_checked_in.first.reserver
+    @check_in_set = reservations_to_be_checked_in
+    @check_out_set = []
+    render 'receipt' and return
   end
 
   def destroy
@@ -273,33 +267,6 @@ class ReservationsController < ApplicationController
     @check_in_set = Reservation.due_for_checkin(@user)
   end
   
-  def receipt
-    @user = User.include_deleted.find(params[:user_id])
-    
-    if !session[:manage_reservation].nil? # if we've checked something in or out
-      # set check-in set from session
-      if session[:manage_reservation][:check_in_set] != NIL
-        @check_in_set = Reservation.find(session[:manage_reservation][:check_in_set])
-      else
-        @check_in_set = []
-      end
-      
-      # set check-out set from session
-      if session[:manage_reservation][:check_out_set] != NIL
-        @check_out_set = Reservation.find(session[:manage_reservation][:check_out_set])
-      else
-        @check_out_set = []
-      end
-    else # if we have NOT checked anything in or out
-      @check_in_set = []
-      @check_out_set = []
-    end
-
-    # clear session variable so that checkout person doesn't have to clear cookies between reservations
-    session[:manage_reservation] = NIL
-    
-  end
-  
   def current
     @user = User.include_deleted.find(params[:user_id])
     
@@ -310,24 +277,14 @@ class ReservationsController < ApplicationController
     
     render 'current_reservations'
   end
-  
-#  def check_out # initializer
-#    @user = User.include_deleted.find(params[:user_id])
-#    @user_current_checkouts = Reservation.due_for_checkout(@user)
-#  end
-
-#  def check_in # initializer
-#    @user =  User.include_deleted.find(params[:user_id])
-#    @check_in_set = Reservation.due_for_checkin(@user)
-#  end
 
   #two paths to create receipt emails for checking in and checking out items.
   def checkout_email
-    binding.pry
+  #  binding.pry
     @user = User.include_deleted.find(params[:user_id])
     @check_out_set = Reservation.due_for_checkout(@user)
     if UserMailer.checkout_receipt(@check_out_set).deliver
-      redirect_to :back
+      redirect_to :root
       flash[:notice] = "Successfully delivered receipt email."
     else 
       redirect_to @reservation
@@ -336,11 +293,11 @@ class ReservationsController < ApplicationController
   end
   
   def checkin_email
-    binding.pry
+  #  binding.pry
     @user = User.include_deleted.find(params[:user_id])
     @check_in_set = Reservation.due_for_checkin(@user)
     if UserMailer.checkin_receipt(@check_in_set).deliver
-      redirect_to :back
+      redirect_to :root
       flash[:notice] = "Successfully delivered receipt email."
     else 
       redirect_to @reservation
@@ -384,3 +341,4 @@ class ReservationsController < ApplicationController
   end
 
 end
+

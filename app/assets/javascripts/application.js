@@ -1,8 +1,6 @@
-// Place your application-specific JavaScript functions and classes here
-// This file is automatically included by javascript_include_tag :defaults
 //= require jquery
 //= require jquery_ujs
-//= require jquery-ui
+//= require jquery.ui.datepicker
 //= require jquery.sticky
 //= require jquery.dotdotdot-1.5.1
 //= require cocoon
@@ -11,7 +9,15 @@
 //= require dataTables_numhtml_sort.js
 //= require dataTables_numhtml_detect.js
 //= require dataTables/jquery.dataTables.bootstrap
-//= require bootstrap
+//= require bootstrap-transition
+//= require bootstrap-alert
+//= require bootstrap-button
+//= require bootstrap-dropdown
+//= require bootstrap-modal
+//= require bootstrap-scrollspy
+//= require bootstrap-tab
+//= require bootstrap-tooltip
+//= require bootstrap-popover
 //= require variables.js
 //= require select2
 //= require_self
@@ -22,7 +28,7 @@
       after: ".more_info",
       watch: 'window'
       });
-    
+
     $(".equipment_title").dotdotdot({
       height: 54, // must match .equipment_title height
       watch: 'window'
@@ -37,7 +43,72 @@
     });
   };
 
+  function validate_checkin(){
+    flag = false;
+    $.each( $(".checkin"), function(i, l){
+      var steps = $(this).find(':checkbox').length;
+      var steps_completed = $(this).find("input:checked").length;
+        if (steps_completed != steps && steps_completed != 0) {
+          flag = true;
+        }
+        else {
+          //do nothing
+        }
+    });
+    return flag;
+  };
+
+  function validate_checkout(){
+    flag = false;
+    $.each( $(".checkout"), function(i, l){
+      var steps = $(this).find(':checkbox').length;
+      var steps_completed = $(this).find("input:checked").length;
+      var selected = $(this).find(".dropselect").val();
+      if (selected != ""){
+        if (steps_completed != steps) {
+          flag = true;
+        }
+        else { // do nothing
+        }
+      } else {
+          if (steps_completed > 0) {
+            flag = true;
+          }
+          else {}
+        }
+    });
+    return flag;
+  };
+
+  function confirm_checkinout(flag){
+    if (flag){
+      if( confirm("One or more check in or check out procedures have not been completed. Are you sure you want to continue?")){
+        (this).submit();
+        return false;
+      } else {
+        //they clicked no.
+        return false;
+      }
+    }
+    else {
+      (this).submit();
+    }
+  };
+
 $(document).ready(function() {
+
+  $('#checkout_button').click(function() {
+    var flag = validate_checkout();
+    confirm_checkinout(flag);
+    return false;
+  });
+
+  $('#checkin_button').click(function() {
+    var flag = validate_checkin();
+    confirm_checkinout(flag);
+    return false;
+  });
+
 // For DataTables and Bootstrap
   $('.datatable').dataTable({
     "sDom": "<'row'<'span4'l><'span5'f>r>t<'row'<'span3'i><'span6'p>>",
@@ -56,7 +127,7 @@ $(document).ready(function() {
           { "bSortable": false, "aTargets": [ "no_sort" ] }
         ]
   });
-  
+
   $('.history_table').dataTable({
     "sDom": "<'row'<l><f>r>t<'row'<'span3'i><p>>",
     "bLengthChange": false,
@@ -65,7 +136,7 @@ $(document).ready(function() {
           { "bSortable": false, "aTargets": [ "no_sort" ] }
         ]
   });
-  
+
   $('.report_table').dataTable({
     "sDom": "<'row'<'span3'l>fr>t<'row'<'span3'i><p>>",
     "sPaginationType": "bootstrap",
@@ -106,9 +177,9 @@ $(document).ready(function() {
   $(".btn#modal").tooltip();
   $(".not-qualified-icon").tooltip();
   $(".not-qualified-icon-em").tooltip();
-  
+
   // Equipment Model - show - progress bar
-  
+
   $('.progress .bar').each(function() {
       var me = $(this);
       var perc = me.attr("data-percentage");
@@ -166,21 +237,22 @@ $(document).ready(function() {
   });
 
   $('.date_start').datepicker({
-    onClose: function(dateText, inst) { 
+    onClose: function(dateText, inst) {
       var start_date = $('.date_start').datepicker("getDate");
       var end_date = $('.date_end').datepicker("getDate");
       if (start_date > end_date){
         $('.date_end').datepicker("setDate", start_date)
       }
-      $('.date_end').datepicker( "option" , "minDate" , start_date); 
+      $('.date_end').datepicker( "option" , "minDate" , start_date);
     }
   });
 
   // Select2 - fancy select lists
   $('select#equipment_model_category_id').select2();
   $('select#equipment_model_associated_equipment_model_ids').select2();
+  $('select#equipment_model_requirements').select2();
   $('select#equipment_object_equipment_model_id').select2();
-  $('select#requirement_equipment_model_id').select2();
+  $('select#requirement_equipment_model').select2();
 
 });
 // to disable selection of dates in the past with datepicker

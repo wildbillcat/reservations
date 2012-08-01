@@ -11,31 +11,28 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120712202128) do
-
-  create_table "accessories_equipment_models", :force => true do |t|
-    t.integer  "accessory_id"
-    t.integer  "equipment_model_id"
-    t.datetime "created_at",         :null => false
-    t.datetime "updated_at",         :null => false
-  end
+ActiveRecord::Schema.define(:version => 20120724184424) do
 
   create_table "app_configs", :force => true do |t|
-    t.boolean "upcoming_checkin_email_active",         :default => true
-    t.boolean "overdue_checkout_email_active",         :default => true
-    t.boolean "reservation_confirmation_email_active", :default => true
-    t.string  "site_title"
-    t.string  "admin_email"
-    t.string  "department_name"
-    t.string  "contact_link_location"
-    t.string  "home_link_text"
-    t.string  "home_link_location"
-    t.integer "default_per_cat_page"
-    t.text    "upcoming_checkin_email_body"
-    t.text    "overdue_checkout_email_body"
-    t.text    "overdue_checkin_email_body"
-    t.boolean "overdue_checkin_email_active",          :default => true
-    t.text    "terms_of_service"
+    t.boolean  "upcoming_checkin_email_active",         :default => true
+    t.boolean  "overdue_checkout_email_active",         :default => true
+    t.boolean  "reservation_confirmation_email_active", :default => true
+    t.string   "site_title"
+    t.string   "admin_email"
+    t.string   "department_name"
+    t.string   "contact_link_location"
+    t.string   "home_link_text"
+    t.string   "home_link_location"
+    t.integer  "default_per_cat_page"
+    t.text     "upcoming_checkin_email_body"
+    t.text     "overdue_checkout_email_body"
+    t.text     "overdue_checkin_email_body"
+    t.boolean  "overdue_checkin_email_active",          :default => true
+    t.text     "terms_of_service"
+    t.string   "favicon_file_name"
+    t.string   "favicon_content_type"
+    t.integer  "favicon_file_size"
+    t.datetime "favicon_updated_at"
   end
 
   create_table "black_outs", :force => true do |t|
@@ -45,6 +42,16 @@ ActiveRecord::Schema.define(:version => 20120712202128) do
     t.text     "notice"
     t.integer  "created_by"
     t.text     "black_out_type"
+    t.datetime "created_at",         :null => false
+    t.datetime "updated_at",         :null => false
+    t.integer  "set_id"
+  end
+
+  create_table "cart_reservations", :force => true do |t|
+    t.integer  "reserver_id"
+    t.datetime "start_date"
+    t.datetime "due_date"
+    t.integer  "equipment_model_id"
     t.datetime "created_at",         :null => false
     t.datetime "updated_at",         :null => false
   end
@@ -105,6 +112,11 @@ ActiveRecord::Schema.define(:version => 20120712202128) do
     t.integer "associated_equipment_model_id"
   end
 
+  create_table "equipment_models_requirements", :id => false, :force => true do |t|
+    t.integer "requirement_id",     :null => false
+    t.integer "equipment_model_id", :null => false
+  end
+
   create_table "equipment_models_reservations", :force => true do |t|
     t.integer  "equipment_model_id"
     t.integer  "reservation_id"
@@ -138,6 +150,7 @@ ActiveRecord::Schema.define(:version => 20120712202128) do
     t.text     "notes"
     t.datetime "created_at",         :null => false
     t.datetime "updated_at",         :null => false
+    t.string   "description"
   end
 
   create_table "reservations", :force => true do |t|

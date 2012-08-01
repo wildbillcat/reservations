@@ -2,11 +2,11 @@
 # Likewise, all the methods added will be available for all controllers.
 
 class ApplicationController < ActionController::Base
-  helper :all # include all helpers, all the time
+  helper :layout
   protect_from_forgery # See ActionController::RequestForgeryProtection for details
 
   before_filter RubyCAS::Filter
-  before_filter :app_setup, :if => lambda {|u| User.all.count == 0 }  
+  before_filter :app_setup, :if => lambda {|u| User.all.count == 0 }
   before_filter :current_user
   before_filter :load_configs
   before_filter :first_time_user
@@ -65,7 +65,7 @@ class ApplicationController < ActionController::Base
 	    current_user.update_attribute(:checkoutpersonmode, 0)
 	    current_user.update_attribute(:normalusermode, 1)
 	    current_user.update_attribute(:bannedmode, 0)
-      flash[:notice] = "Viewing as Normal User"
+      flash[:notice] = "Viewing as Patron"
       redirect_to :action => "index" and return
     end
     if (params[:b_mode] && current_user.is_admin)
@@ -81,7 +81,6 @@ class ApplicationController < ActionController::Base
   def current_user
     @current_user ||= User.include_deleted.find_by_login(session[:cas_user]) if session[:cas_user]
   end
-  
 
   def bind_pry_before_everything
     binding.pry
@@ -182,5 +181,34 @@ class ApplicationController < ActionController::Base
       flash[:notice] = "Only administrators can do that!"
     end
     redirect_to request.referer  # Or use redirect_to(back)
+  end
+  
+  def markdown_help
+    respond_to do |format|
+      format.html{render :partial => 'shared/markdown_help'}
+      format.js{render :template => 'shared/markdown_help_js'}
+    end
+  end  
+
+  def csv_import(filepath)
+    # initialize
+    imported_objects = []
+    string = File.read(filepath)
+    require 'csv'
+    
+    # import data by row
+    CSV.parse(string, :headers => true) do |row|
+      object_hash = row.to_hash.symbolize_keys
+      
+      # make all nil values blank
+      object_hash.keys.each do |key|
+        if object_hash[key].nil?
+          object_hash[key] = ''
+        end
+      end
+      imported_objects << object_hash
+    end
+    # return array of imported objects
+    imported_objects
   end
 end
