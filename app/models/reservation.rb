@@ -10,12 +10,12 @@ class Reservation < ActiveRecord::Base
             :due_date,
             :equipment_model,
             :presence => true
-
+            
   # If there is no equipment model, it doesn't run the reservations that would break it
   with_options :if => :not_empty? do |r|
-    r.validate :no_overdue_reservations?, :start_date_before_due_date?, :matched_object_and_model?,
+    r.validate :no_overdue_reservations?, :not_in_past?, :start_date_before_due_date?, :matched_object_and_model?,
               :not_renewable?, :duration_allowed?, :available?, :quantity_eq_model_allowed?, :quantity_cat_allowed?
-    r.validate :not_renewable?, :not_in_past?, :on => :create
+    r.validate :not_renewable?, :on => :create
   end
 
   scope :recent, order('start_date, due_date, reserver_id')
@@ -82,7 +82,7 @@ class Reservation < ActiveRecord::Base
     errors = []
     all_res_array.each do |res|
       errors << user.name + " has overdue reservations that prevent new ones from being created" unless res.no_overdue_reservations?
-      errors << "Reservations cannot be made in the past" unless res.not_in_past?
+      errors << "Reservations cannot be made in the past" unless res.not_in_past? if self.class == CartReservation
       errors << "Reservations start dates must be before due dates" unless res.start_date_before_due_date?
       errors << "Reservations must have an associated equipment model" unless res.not_empty?
       errors << res.equipment_object.name + " should be of type " + res.equipment_model.name unless res.matched_object_and_model?

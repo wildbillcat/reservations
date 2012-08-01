@@ -160,6 +160,6 @@ describe 'reservation' do
     Reservation.validate_set(admin).should == []
     overdue_res = FactoryGirl.build(:overdue_reservation, reserver: admin)
     overdue_res.save(:validate => false)
-    Reservation.validate_set(admin).should == ["User has overdue reservations that prevent new ones from being created"]
+    Reservation.validate_set(admin).should == [] << admin.name + " has overdue reservations that prevent new ones from being created"
   end
 end

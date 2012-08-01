@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120724184424) do
+ActiveRecord::Schema.define(:version => 20120801200918) do
 
   create_table "app_configs", :force => true do |t|
     t.boolean  "upcoming_checkin_email_active",         :default => true
@@ -140,6 +140,19 @@ ActiveRecord::Schema.define(:version => 20120724184424) do
     t.integer  "reservation_id"
     t.datetime "created_at",          :null => false
     t.datetime "updated_at",          :null => false
+  end
+
+  create_table "requested_reservations", :force => true do |t|
+    t.integer  "reserver_id"
+    t.datetime "start_date"
+    t.datetime "due_date"
+    t.integer  "equipment_model_id"
+    t.string   "approval_status"
+    t.string   "reason"
+    t.string   "notes"
+    t.integer  "last_updated_by_id"
+    t.datetime "created_at",         :null => false
+    t.datetime "updated_at",         :null => false
   end
 
   create_table "requirements", :force => true do |t|

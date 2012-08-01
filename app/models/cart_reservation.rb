@@ -4,7 +4,8 @@ class CartReservation < ActiveRecord::Base
   validates :reserver,
             :start_date,
             :due_date,
+            :equipment_model,
             :presence => true
 
-  validate :not_in_past?, :not_empty?
+  validate :not_in_past?, :not_empty?, :start_date_before_due_date?
 end
