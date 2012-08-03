@@ -16,6 +16,12 @@ class ReservationsController < ApplicationController
         @reservations_set = [Reservation.missed].delete_if{|a| a.empty?}
       elsif params[:returned]
         @reservations_set = [Reservation.returned].delete_if{|a| a.empty?}
+      elsif params[:requested]
+        @requests_set = [RequestedReservation.requested].delete_if{|a| a.empty?}
+      elsif params[:denied]
+        @requests_set = [RequestedReservation.denied].delete_if{|a| a.empty?}
+      elsif params[:approved]
+        @requests_set = [RequestedReservation.approved].delete_if{|a| a.empty?}
       else
         @reservations_set = [Reservation.upcoming].delete_if{|a| a.empty?}
       end
@@ -28,6 +34,12 @@ class ReservationsController < ApplicationController
         @reservations_set = [current_user.reservations.missed].delete_if{|a| a.empty?}
       elsif params[:returned]
         @reservations_set = [current_user.reservations.returned].delete_if{|a| a.empty?}
+      elsif params[:requested]
+        @requests_set = [current_user.requested_reservations.requested].delete_if{|a| a.empty?}
+      elsif params[:denied]
+        @requests_set = [current_user.requested_reservations.denied].delete_if{|a| a.empty?}
+      elsif params[:approved]
+        @requests_set = [current_user.requested_reservations.approved].delete_if{|a| a.empty?}
       else
         @reservations_set = [current_user.reservations.reserved].delete_if{|a| a.empty?} 
       end
@@ -342,6 +354,73 @@ class ReservationsController < ApplicationController
       format.js{render :action => "renew_box"}
     end
   end
+  
+  def review_requested
+    @requested_reservation = RequestedReservation.find(params[:requested_reservation_id])
+    
+    # process errors
+    @errors = [] # initialize
+    temp_reservation = Reservation.new(@requested_reservation.attributes)
+    temp_reservation.valid?
+    @errors = temp_reservation.errors.full_messages
+    
+    # exit
+    render 'review_request'
+  end
+  
+  def approve_or_deny
+    request = RequestedReservation.find(params[:requested_reservation_id])
+    notes = params[:notes]
 
+    if params[:commit] == 'Approve'
+      reservation = Reservation.new(request.attributes)
+      reservation.notes = notes
+      
+      # need to pass some parameter here for admin-override
+      
+      if reservation.save
+        request.notes = notes unless notes.blank?
+        request.approval_status = 'approved'
+        request.last_updated_by_id = current_user.id
+        request.save(:validate => false) # we created the valid reservation, so don't throw errors now for no reason
+        
+        # here we need to email the patron
+        
+        # exit
+        flash[:notice] = 'Successfully approved reservation.'
+        redirect_to reservations_path and return
+      else
+        flash[:error] = 'Unable to approve reservation.'
+        redirect_to :back and return
+      end    
+    elsif params[:commit] == 'Deny'
+      request.notes = notes unless notes.blank?
+      request.approval_status = 'denied'
+      request.last_updated_by_id = current_user.id
+      
+      if request.save(:validate => false) # I mean who cares if it's invalid? we're denying it.
+        
+        # here we need to email the patron
+      
+        flash[:notice] = 'Successfully denied reservation.'
+        redirect_to reservations_path and return
+      else
+        flash[:error] = 'Unable to deny reservation.'
+        redirect_to :back and return
+      end
+    else # in case we rename the buttons in the view
+      flash[:error] = 'Oops! Something went wrong. Please politely ask a computer programmer to fix this.'
+      redirect_to :back and return
+    end
+  end
+  
+  def cancel_request
+    request = RequestedReservation.find(params[:requested_reservation_id])
+    require_user_or_checkout_person(request.reserver)
+    request.destroy
+    flash[:notice] = "Successfully canceled reservation request."
+    redirect_to reservations_path
+  end
+  
 end
 

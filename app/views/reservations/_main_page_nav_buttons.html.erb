@@ -1,7 +1,7 @@
 <div class="btn-toolbar">
   <div class="btn-group">
     <% if current_user.can_checkout? %>
-      <% unless params[:reserved] or params[:checked_out] or params[:overdue] or params[:missed] or params[:returned] %>
+      <% unless params[:reserved] or params[:checked_out] or params[:overdue] or params[:missed] or params[:returned] or params[:requested] or params[:denied] or params[:approved] %>
         <%= link_to "Today (#{Reservation.upcoming.size})", reservations_path, :class => "btn disabled" %>
       <% else %>
         <%= link_to "Today (#{Reservation.upcoming.size})", reservations_path, :class => "btn" %>
@@ -31,6 +31,21 @@
       <% else %>
     	  <%= link_to "Returned (#{Reservation.returned.size})", reservations_path(:returned => true), :class => "btn" %>
       <% end %>
+      <% if params[:requested] %>
+    	  <%= link_to "Requested (#{RequestedReservation.requested.size})", reservations_path(:requested => true), :class => "btn disabled" %>
+      <% else %>
+    	  <%= link_to "Requested (#{RequestedReservation.requested.size})", reservations_path(:requested => true), :class => "btn" %>
+      <% end %>
+      <% if params[:denied] %>
+    	  <%= link_to "Denied (#{RequestedReservation.denied.size})", reservations_path(:denied => true), :class => "btn disabled" %>
+      <% else %>
+    	  <%= link_to "Denied (#{RequestedReservation.denied.size})", reservations_path(:denied => true), :class => "btn" %>
+      <% end %>
+      <% if params[:approved] %>
+    	  <%= link_to "Approved (#{RequestedReservation.approved.size})", reservations_path(:approved => true), :class => "btn disabled" %>
+      <% else %>
+    	  <%= link_to "Approved (#{RequestedReservation.approved.size})", reservations_path(:approved => true), :class => "btn" %>
+      <% end %>
     <% else %>
       <% unless params[:checked_out] or params[:overdue] or params[:missed] or params[:returned] %>
         <%= link_to "Reserved (#{current_user.reservations.reserved.size})", reservations_path, :class => "btn disabled" %>
@@ -56,6 +71,21 @@
         <%= link_to "Returned (#{current_user.reservations.returned.size})", reservations_path(:returned => true), :class => "btn disabled" %>
       <% else %>
         <%= link_to "Returned (#{current_user.reservations.returned.size})", reservations_path(:returned => true), :class => "btn" %>
+      <% end %>
+      <% if params[:requested] %>
+    	  <%= link_to "Requested (#{current_user.requested_reservations.requested.size})", reservations_path(:requested => true), :class => "btn disabled" %>
+      <% else %>
+    	  <%= link_to "Requested (#{current_user.requested_reservations.requested.size})", reservations_path(:requested => true), :class => "btn" %>
+      <% end %>
+      <% if params[:denied] %>
+    	  <%= link_to "Denied (#{current_user.requested_reservations.denied.size})", reservations_path(:denied => true), :class => "btn disabled" %>
+      <% else %>
+    	  <%= link_to "Denied (#{current_user.requested_reservations.denied.size})", reservations_path(:denied => true), :class => "btn" %>
+      <% end %>
+      <% if params[:approved] %>
+    	  <%= link_to "Approved (#{current_user.requested_reservations.approved.size})", reservations_path(:approved => true), :class => "btn disabled" %>
+      <% else %>
+    	  <%= link_to "Approved (#{current_user.requested_reservations.approved.size})", reservations_path(:approved => true), :class => "btn" %>
       <% end %>
     <% end %>
   </div>

@@ -24,6 +24,10 @@ Reservations::Application.routes.draw do
 
   match '/catalog/search' => 'catalog#search', :as => :catalog_search
   match '/markdown_help' => 'application#markdown_help', :as => :markdown_help
+  
+  match '/reservations/review/:requested_reservation_id' => 'reservations#review_requested', :as => :requested_reservation
+  match '/reservations/review/:requested_reservation_id/approve_or_deny' => 'reservations#approve_or_deny', :via => :post, :as => :approve_or_deny
+  match '/reservations/review/:requested_reservation_id/cancel' => 'reservations#cancel_request', :via => :delete, :as => :cancel_request
 
   resources :reservations do
     member do

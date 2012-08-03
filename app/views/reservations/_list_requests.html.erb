@@ -1,0 +1,43 @@
+<table id="table_woo" class="datatable table table-striped table-bordered">
+  <thead>
+  <tr>
+    <th>#</th>
+    <% if current_user.can_checkout? %>
+      <th>Reserver</th>
+    <% end %>
+    <th>Equipment</th>
+    <th>Start Date</th>
+    <th>Due Date</th>
+  </tr>
+  </thead>
+  <tbody>
+  <% for request in list_requests %>
+    <tr>
+      <td><%= link_to request.id, request %></td>
+      <% if current_user.can_checkout? %>
+        <% if (request.reserver) %>
+          <td>
+          <div class="dropdown">
+              <%= link_to request.reserver.name, '#', :"data-toggle" => 'dropdown' %>
+              <% if current_user.can_checkout? %>
+              <ul class="dropdown-menu">
+                <li><%= link_to 'Profile', request.reserver %></li>
+                <li><%= link_to "Manage reservations", manage_reservations_for_user_path(request.reserver.id) %></li>
+                <li><%= link_to "Current reservations", current_reservations_for_user_path(request.reserver.id) %></li>
+              </ul>
+              <% end %>
+            </div>
+          </td>
+
+        <% else %>
+          <td>User no longer exists</td>
+        <% end %>
+      <% end %>
+      <td><%= link_to request.equipment_model.name, request.equipment_model %></td>
+      <td><%= request.start_date.to_date.to_s(:long) %></td>
+      <td><%= request.due_date.to_date.to_s(:long) %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+<hr />

@@ -1,0 +1,78 @@
+<% title "Review Reservation Request ##{@requested_reservation.id}" %>
+
+<p>
+  <strong>Patron:</strong>
+  <%= @requested_reservation.reserver.name %>
+</p>
+<p>
+  <strong>Equipment:</strong>
+  <%= @requested_reservation.equipment_model.name %>
+</p>
+<p>
+  <strong>Start Date:</strong>
+  <%= @requested_reservation.start_date.to_date.to_s(:long) %>
+</p>
+<p>
+  <strong>Due Date:</strong>
+  <%= @requested_reservation.due_date.to_date.to_s(:long) %>
+</p>
+<p>
+  <% if @requested_reservation.approval_status.nil? %>
+    <strong>Current conflicts preventing automatic approval of this reservation:</strong>
+    <% unless @errors.empty? %>
+      <% @errors.each do |msg| %>
+        <ul><li><%= msg %></li></ul>
+      <% end %>
+    <% else %>
+      <ul><li>All conflicts have been resolved either by the patron or by an administrator.</li></ul>
+    <% end %>
+  <% elsif @requested_reservation.approval_status == 'approved' %>
+    <strong>This request was approved on <%= @requested_reservation.updated_at.to_s(:long) %> by <%= @requested_reservation.last_updated_by.name %>.</strong>
+  <% elsif @requested_reservation.approval_status == 'denied' %>
+    <strong>This request was denied on <%= @requested_reservation.updated_at.to_s(:long) %> by <%= @requested_reservation.last_updated_by.name %>.</strong>
+  <% end %>
+</p>
+<% unless @requested_reservation.reason.blank? %>
+  <p>
+    <strong>Patron's reason for requesting this reservation:</strong>
+  </p>
+  <p>
+    <%= @requested_reservation.reason %>
+  </p>
+<% end %>
+
+<% if @requested_reservation.approval_status.nil? %>
+  <% if current_user.is_admin_in_adminmode? %>
+  <%= form_tag approve_or_deny_path %>
+  <p>
+    <strong>Reason for approval / denial (sent to patron):</strong>
+  </p>
+  <%= text_area_tag 'notes' %>
+  <% end %>
+  <div class='form-actions'>
+    <% if current_user.is_admin_in_adminmode? %>
+      <%= submit_tag 'Approve', class: 'btn btn-primary' %>
+      <%= submit_tag 'Deny', class: 'btn btn-danger' %>
+    <% end %>
+    <%= link_to 'Cancel Request', cancel_request_path, class: 'btn', confirm: 'Are you sure?', method: :delete %>
+  </div>
+<% else %>
+  <% if @requested_reservation.last_updated_by %>
+    <p>
+      <strong>Reason for approval / denial (sent to patron):</strong>
+    </p>
+    <p>
+      <% unless @requested_reservation.notes.blank? %>
+        <%= @requested_reservation.notes %>
+      <% else %>
+        <%= @requested_reservation.last_updated_by.name %> did not email a reason to the patron.
+      <% end %>
+    </p>
+    <% end %>
+  <% if current_user.is_admin_in_adminmode? %>
+    <div class='form-actions'>
+      <%= button_tag 'Approve', class: 'btn btn-primary disabled', disabled: true %>
+      <%= button_tag 'Deny', class: 'btn btn-danger disabled', disabled: true %>
+    </div>
+  <% end %>
+<% end %>

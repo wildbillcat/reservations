@@ -2,4 +2,8 @@
 
 <%= render :partial => "main_page_nav_buttons" %>
 
-<%= render :partial => "reservations_list", :collection => @reservations_set %>
+<% if @reservations_set %>
+  <%= render :partial => "reservations_list", :collection => @reservations_set %>
+<% elsif @requests_set %>
+  <%= render :partial => "list_requests", :collection => @requests_set %>
+<% end %>
