@@ -23,7 +23,10 @@
 //= require select2
 //= require _select2_app
 //= require _datatables_app
+//= require _bootstrap_app
+//= require _datepicker_app
 //= require _functions
+//= require _global
 //= require_self
 
 $(document).ready(function() {
@@ -70,10 +73,6 @@ $(document).ready(function() {
     });
   });
 
-  $(".btn#modal").tooltip();
-  $(".not-qualified-icon").tooltip();
-  $(".not-qualified-icon-em").tooltip();
-
   // Equipment Model - show - progress bar
 
   $('.progress .bar').each(function() {
@@ -90,10 +89,6 @@ $(document).ready(function() {
           }
       }, 100);
   });
-
-  $('.associated_em_box img').popover({ placement: 'bottom' });
-  $("#my_reservations .dropdown-menu a").popover({ placement: 'bottom' });
-  $("#my_equipment .dropdown-menu a").popover({ placement: 'bottom' });
 
   // fix sub nav on scroll
   var $win = $(window)
@@ -132,33 +127,4 @@ $(document).ready(function() {
     $('#userModal div.modal-body').load(new_user, {from_cart : true }); // new_user defined in variables.js.erb
   });
 
-  $('.date_start').datepicker({
-    onClose: function(dateText, inst) {
-      var start_date = $('.date_start').datepicker("getDate");
-      var end_date = $('.date_end').datepicker("getDate");
-      if (start_date > end_date){
-        $('.date_end').datepicker("setDate", start_date)
-      }
-      $('.date_end').datepicker( "option" , "minDate" , start_date);
-    }
-  });
-
-});
-// to disable selection of dates in the past with datepicker
-$.datepicker.setDefaults({
-   minDate: new Date()
-});
-
-// general submit on change class
-$(document).on('change', '.autosubmitme', function() {
-  $(this).parents('form:first').submit();
-});
-
-//$(document).on('change', '.autosubmitme2', function() {
-//  $.ajax("update_dates");
-//});
-
-$(document).on('railsAutocomplete.select', '#fake_reserver_id', function(event, data){
-    $("#reserver_id").val(data.item.id); // updating reserver_id here to make sure that it is done before it submits
-    $(this).parents('form').submit();
 });
