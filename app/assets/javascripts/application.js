@@ -6,8 +6,8 @@
 //= require cocoon
 //= require autocomplete-rails
 //= require dataTables/jquery.dataTables
-//= require dataTables_numhtml_sort.js
-//= require dataTables_numhtml_detect.js
+//= require _dataTables_numhtml_sort
+//= require _dataTables_numhtml_detect
 //= require dataTables/jquery.dataTables.bootstrap
 //= require bootstrap-transition
 //= require bootstrap-alert
@@ -19,7 +19,7 @@
 //= require bootstrap-tab
 //= require bootstrap-tooltip
 //= require bootstrap-popover
-//= require variables.js
+//= require _variables
 //= require select2
 //= require_self
 

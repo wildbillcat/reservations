@@ -27,6 +27,6 @@ Reservations::Application.configure do
   config.assets.compile = true
   config.assets.compress = true
   config.assets.js_compressor = :uglifier
-  config.assets.debug = false
+  config.assets.debug = true
   config.assets.digest = false
 end
