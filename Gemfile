@@ -1,10 +1,9 @@
-# A sample Gemfile
 source "https://rubygems.org"
 gem "whenever"
 gem "net-ldap"
 gem "paperclip"
 gem "rake"
-gem "rails", "3.2.0"
+gem "rails", "3.2.7"
 gem "mysql2"
 gem "rdoc"
 gem "rubycas-client-rails"
@@ -23,7 +22,6 @@ gem "jquery-rails"
 gem 'jquery-ui-rails'
 gem 'jquery-datatables-rails'
 gem "cocoon"
-gem "ffaker"
 gem "rails3-jquery-autocomplete"
 gem "kaminari"
 gem "redcarpet"
@@ -35,6 +33,7 @@ group :development, :test do
   gem 'capybara'
   gem 'guard-livereload'
   gem 'yajl-ruby'
+  gem "ffaker"
 end
 
 # Gems used only for assets and not required
@@ -48,7 +47,6 @@ group :assets do
 end
 
 group :development do
-  gem 'guard-livereload'
   gem 'rb-readline'
 	gem 'thin'
 end
