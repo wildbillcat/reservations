@@ -2,7 +2,7 @@
 # Likewise, all the methods added will be available for all controllers.
 
 class ApplicationController < ActionController::Base
-  helper :all # include all helpers, all the time
+  helper :layout
   protect_from_forgery # See ActionController::RequestForgeryProtection for details
 
   before_filter :app_setup, :if => lambda {|u| User.all.count == 0 }  
@@ -54,7 +54,7 @@ class ApplicationController < ActionController::Base
 	    current_user.update_attribute(:checkoutpersonmode, 0)
 	    current_user.update_attribute(:normalusermode, 1)
 	    current_user.update_attribute(:bannedmode, 0)
-      flash[:notice] = "Viewing as Normal User"
+      flash[:notice] = "Viewing as Patron"
       redirect_to :action => "index" and return
     end
     if (params[:b_mode] && current_user.is_admin)
@@ -73,25 +73,22 @@ class ApplicationController < ActionController::Base
 
   #-------- end before_filter methods --------
 
-    def update_cart
-     #set dates
-      flash.clear
-      session[:cart].set_start_date(Date.strptime(params[:cart][:start_date_cart],'%m/%d/%Y'))
-      session[:cart].set_due_date(Date.strptime(params[:cart][:due_date_cart],'%m/%d/%Y'))
-      session[:cart].set_reserver_id(params[:reserver_id])
-      if !cart.valid_dates? #Validations are currently broken, so this always evaluates to false
-        flash[:error] = cart.errors.values.flatten.join("<br/>").html_safe
-        cart.errors.clear
-        if flash[:error].blank?
-          flash[:notice] = "Cart updated"
-        end
-      end
+  def update_cart
+    # set dates
+    flash.clear
+    session[:cart].set_start_date(Date.strptime(params[:cart][:start_date_cart],'%m/%d/%Y'))
+    session[:cart].set_due_date(Date.strptime(params[:cart][:due_date_cart],'%m/%d/%Y'))
+    session[:cart].set_reserver_id(params[:reserver_id])
+    
+    # validate
+    errors = Reservation.validate_set(cart.reserver, cart.cart_reservations)
+    flash[:error] = errors.to_sentence
 
-      # reload appropriate divs / exit
-      respond_to do |format|
-        format.js{render :template => "reservations/cart_dates_reload"}
-          # guys i really don't like how this is rendering a template for js, but :action doesn't work at all
-        format.html{render :partial => "reservations/cart_dates"}
+    # reload appropriate divs / exit
+    respond_to do |format|
+      format.js{render :template => "reservations/cart_dates_reload"}
+        # guys i really don't like how this is rendering a template for js, but :action doesn't work at all
+      format.html{render :partial => "reservations/cart_dates"}
     end
   end
 
@@ -152,14 +149,46 @@ class ApplicationController < ActionController::Base
   def activate
     if (current_user.is_admin)
       @model_to_activate = params[:controller].singularize.titleize.delete(' ').constantize.include_deleted.find(params[:id]) #Finds the current model (User, EM, EO, Category)
+      
       if (params[:controller] != "users") #Search for parents is not necessary if we are altering users.
         activateParents(@model_to_activate)
+        activateChildren(@model_to_activate)
       end
       @model_to_activate.revive #Activate the model you had originally intended to activate
+      
       flash[:notice] = "Successfully reactivated " + params[:controller].singularize.titleize + ". Any related reservations or equipment have been reactivated as well."
     else
       flash[:notice] = "Only administrators can do that!"
     end
     redirect_to request.referer  # Or use redirect_to(back)
+  end
+  
+  def markdown_help
+    respond_to do |format|
+      format.html{render :partial => 'shared/markdown_help'}
+      format.js{render :template => 'shared/markdown_help_js'}
+    end
+  end  
+
+  def csv_import(filepath)
+    # initialize
+    imported_objects = []
+    string = File.read(filepath)
+    require 'csv'
+    
+    # import data by row
+    CSV.parse(string, :headers => true) do |row|
+      object_hash = row.to_hash.symbolize_keys
+      
+      # make all nil values blank
+      object_hash.keys.each do |key|
+        if object_hash[key].nil?
+          object_hash[key] = ''
+        end
+      end
+      imported_objects << object_hash
+    end
+    # return array of imported objects
+    imported_objects
   end
 end

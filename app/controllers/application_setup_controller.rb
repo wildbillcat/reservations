@@ -1,12 +1,14 @@
 class ApplicationSetupController < ApplicationController
+  helper :app_configs
   skip_filter :first_time_user
   skip_filter :app_setup
   skip_filter :authenticate_user!
   
   before_filter :initialize_app_configs
   before_filter :load_configs
+  before_filter :new_admin_user
   before_filter :redirect_if_not_first_run
-  
+
 
   def login_settings
     flash[:notice] = "Please choose your authorization method and enter your LDAP server settings here"
@@ -42,13 +44,13 @@ class ApplicationSetupController < ApplicationController
   end
 
   def initialize_app_configs
-    if AppConfig.first.nil?
+    if AppConfig.all.empty?
       AppConfig.create!({ :site_title => "Reservations",
-                          :admin_email => "admin@admin.admin",
-                          :department_name => "School of Art Digital Technology Office",
-                          :contact_link_location => "admin@admin.admin", 
+                          :admin_email => "admin_address@your_domain.com",
+                          :department_name => "Your Department Name",
+                          :contact_link_location => "contact@your_domain.com", 
                           :home_link_text => "Home", 
-                          :home_link_location => "http://clc.yale.edu", 
+                          :home_link_location => "http://your_domain.com", 
                           :default_per_cat_page => 20,
                           :upcoming_checkin_email_body => "Dear @user@,
                            Please remember to return the equipment you borrowed from us:

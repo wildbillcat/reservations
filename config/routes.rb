@@ -25,6 +25,8 @@ Reservations::Application.routes.draw do
     resources :equipment_models
   end
     
+  match '/users/import' => 'users#import_page', :via => :get, :as => :csv_import_page
+  match '/users/import' => 'users#import', :via => :post, :as => :csv_import
   resources :users do
     collection do
       get :find
@@ -32,7 +34,7 @@ Reservations::Application.routes.draw do
   end
 
   match '/catalog/search' => 'catalog#search', :as => :catalog_search
-#  match '/markdown' => 'shared/markdown_cheat_sheet', :as => :markdown_cheat_sheet
+  match '/markdown_help' => 'application#markdown_help', :as => :markdown_help
 
   resources :reservations do
     member do
@@ -55,20 +57,18 @@ Reservations::Application.routes.draw do
 
   # reservations views
   match '/reservations/manage/:user_id' => 'reservations#manage', :as => :manage_reservations_for_user
-  match '/reservations/receipt/:user_id' => 'reservations#receipt', :as => :reservations_receipt_for_user
   match '/reservations/current/:user_id' => 'reservations#current', :as => :current_reservations_for_user
   
   
   # reservation checkout / check-in actions
-  match '/reservations/checkout/:user_id' => 'reservations#checkout', :as => :checkout
-  match '/reservations/check-in/:user_id' => 'reservations#checkin', :as => :checkin
+  match '/reservations/checkout/:user_id' => 'reservations#checkout', :via => :put, :as => :checkout
+  match '/reservations/check-in/:user_id' => 'reservations#checkin', :via => :put, :as => :checkin
   
   match '/catalog/update_view' => 'catalog#update_user_per_cat_page', :as => :update_user_per_cat_page
   match '/catalog' => 'catalog#index', :as => :catalog
   match '/add_to_cart/:id' => 'catalog#add_to_cart', :via => :put, :as => :add_to_cart
   match '/remove_from_cart/:id' => 'catalog#remove_from_cart', :via => :put, :as => :remove_from_cart
   match '/cart/empty' => 'application#empty_cart', :via => :delete, :as => :empty_cart
-
   match '/cart/update' => 'application#update_cart', :as => :update_cart
   
   match '/reports/index' => 'reports#index', :as => :reports

@@ -3,7 +3,7 @@
   <tr>
     <th>#</th>
     <% if current_user.can_checkout? %>
-      <th>User</th>
+      <th>Reserver</th>
     <% end %>
     <th>Equipment</th>
     <th>Item</th>
@@ -18,12 +18,18 @@
       <% if current_user.can_checkout? %>
         <% if (reservation.reserver) %>
           <td>
-            <%= link_to reservation.reserver.name, reservation.reserver %>
-            <% if current_user.can_checkout? %>
-              (<%= link_to 'manage', manage_reservations_for_user_path(reservation.reserver.id) %>)
-            <% end %>
-            (<%= link_to 'current', current_reservations_for_user_path(reservation.reserver.id) %>)
-        </td>
+          <div class="dropdown">
+              <%= link_to reservation.reserver.name, '#', :"data-toggle" => 'dropdown' %>
+              <% if current_user.can_checkout? %>
+              <ul class="dropdown-menu">
+                <li><%= link_to 'Profile', reservation.reserver %></li>
+                <li><%= link_to "Manage reservations", manage_reservations_for_user_path(reservation.reserver.id) %></li>
+                <li><%= link_to "Current reservations", current_reservations_for_user_path(reservation.reserver.id) %></li>
+              </ul>
+              <% end %>
+            </div>
+          </td>
+
         <% else %>
           <td>User no longer exists</td>
         <% end %>
@@ -41,4 +47,3 @@
   </tbody>
 </table>
 <hr />
-

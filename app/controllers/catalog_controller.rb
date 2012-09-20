@@ -1,4 +1,5 @@
 class CatalogController < ApplicationController
+  helper :black_outs
   layout 'application_with_sidebar'
 
   skip_filter :authenticate_user!, :only => [:index, :search]
@@ -11,7 +12,11 @@ class CatalogController < ApplicationController
 
   def add_to_cart
     @equipment_model = EquipmentModel.find(params[:id])
-    cart.add_equipment_model(@equipment_model)
+    cart.add_item(@equipment_model)
+    
+    errors = Reservation.validate_set(cart.reserver, cart.cart_reservations)
+    flash[:error] = errors.to_sentence
+    
     respond_to do |format|
       format.html{redirect_to root_path}
       format.js{render :action => "update_cart"}
@@ -24,7 +29,11 @@ class CatalogController < ApplicationController
 
   def remove_from_cart
     @equipment_model = EquipmentModel.find(params[:id])
-    cart.remove_equipment_model(@equipment_model)
+    cart.remove_item(@equipment_model)
+    
+    errors = Reservation.validate_set(cart.reserver, cart.cart_reservations)
+    flash[:error] = errors.to_sentence
+    
     respond_to do |format|
       format.html{redirect_to root_path}
       format.js{render :action => "update_cart"}
@@ -34,7 +43,7 @@ class CatalogController < ApplicationController
     flash[:notice] = "Invalid equipment_model"
     redirect_to root_path
   end
-  
+
   def update_user_per_cat_page
     session[:user_per_cat_page] = params[:user_cat_items_per_page] if !params[:user_cat_items_per_page].blank?
     respond_to do |format|
@@ -53,5 +62,5 @@ class CatalogController < ApplicationController
       render 'search_results' and return
     end
   end
-  
+
 end
