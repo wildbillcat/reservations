@@ -10,8 +10,7 @@ class ApplicationController < ActionController::Base
   before_filter :load_configs
   before_filter :cart
   before_filter :set_view_mode
-  #before_filter :bind_pry_before_everything
-
+  
   helper_method :cart
   
   #-------- before_filter methods --------
@@ -65,10 +64,6 @@ class ApplicationController < ActionController::Base
       flash[:notice] = "Viewing as Banned User"
       redirect_to :action => "index" and return
     end
-  end
-
-  def bind_pry_before_everything
-    binding.pry
   end
 
   #-------- end before_filter methods --------

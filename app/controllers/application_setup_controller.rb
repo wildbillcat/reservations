@@ -6,7 +6,6 @@ class ApplicationSetupController < ApplicationController
   
   before_filter :initialize_app_configs
   before_filter :load_configs
-  before_filter :new_admin_user
   before_filter :redirect_if_not_first_run
 
 
@@ -16,6 +15,7 @@ class ApplicationSetupController < ApplicationController
   end
 
   def new_admin_user
+    authenticate_user! unless session[:user_login]
     if User.first
       redirect_to new_app_configs_path
     end
@@ -37,10 +37,6 @@ class ApplicationSetupController < ApplicationController
     else
       render :action => 'new_admin_user'
     end
-  end
-
-  def load_configs
-    @app_configs = AppConfig.first
   end
 
   def initialize_app_configs

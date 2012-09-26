@@ -50,9 +50,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
   def update
     self.resource = resource_class.to_adapter.get!(send(:"current_#{resource_name}").to_key)
 
-    binding.pry
     resource.login = params[:user][:email]
-    binding.pry
 
     if resource.update_with_password(resource_params)
       if is_navigational_format?
