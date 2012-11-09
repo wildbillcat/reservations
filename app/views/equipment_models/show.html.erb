@@ -1,5 +1,5 @@
 <% title @equipment_model.name %>
-<% subtitle Category.include_deleted.find(@equipment_model.category_id).name.singularize %>
+<% subtitle Category.include_deleted.find(@equipment_model.category_id).name %>
 
 
 <!-- EQUIPMENT MODEL INFO BOX -->
@@ -186,14 +186,14 @@
   <%= content_tag :div, :class => 'row' do %>
     <%= content_tag :div, :class => 'span3' do %>
       <h4>
-        <%= (link_to @equipment_model.documentation_file_name, @equipment_model.documentation.url, target: "_blank") unless !@equipment_model.documentation.exists? %>
+        <%= (link_to @equipment_model.documentation_file_name, asset_paths.compute_public_path(@equipment_model.documentation.url, ""), target: "_blank") if @equipment_model.documentation.exists? %>
       </h4>
     <% end %>
   <% end %>
   <!-- Content Row -->
   <%= content_tag :div, :class => 'row' do %>
     <%= content_tag :div, :class => 'span2' do %>
-      <%= link_to @equipment_model.documentation.url, target: "_blank" do %>
+      <%= link_to asset_paths.compute_public_path(@equipment_model.documentation.url, ""), target: "_blank" do %>
         <%= content_tag :i, nil, :class => 'icon-file document' %>
       <% end %>
     <% end %>
@@ -219,11 +219,7 @@
       <%= link_to "Create New " + @equipment_model.name.singularize.truncate(30) + " Item", new_equipment_model_equipment_object_path(@equipment_model), :class => 'btn' %>
     </p>
     <p id="equipment_objects">
-      <% if @equipment_model.equipment_objects.empty? %>
-        (none)
-      <% else %>
         <%= render 'equipment_objects_table' %>
-      <% end %>
     </p>
   </section>
 
@@ -246,7 +242,7 @@
       <% if @equipment_model.checkout_procedures.empty? %>
         <p>(none)</p>
       <% else %>
-        <ol>
+        <ol class="rectangle-list">
           <% @equipment_model.checkout_procedures.each do |checkout_procedure| %>
             <li><%= checkout_procedure.step %></li>
           <% end %>
@@ -255,7 +251,7 @@
     <% end %>
     <%= content_tag :div, :class => 'span4' do %>
       <% if @equipment_model.checkin_procedures.empty? %>
-        (none)
+        <p>(none)</p>
       <% else %>
         <ol class="rectangle-list">
           <% @equipment_model.checkin_procedures.each do |checkin_procedure| %>
@@ -271,7 +267,7 @@
 <div class="form-actions">
   <% if current_user.is_admin_in_adminmode? %>
     <%= link_to "Edit "+@equipment_model.name.truncate(30), edit_equipment_model_path(@equipment_model), :class => 'btn' %>
-    <%= link_to "Destroy "+@equipment_model.name.truncate(30), @equipment_model, :confirm => 'This will permanently delete the Object from your database and could have unintended consequences. You might break all the things. Are you sure?', :method => :delete, :class => 'btn btn-danger' %>
+    <%= link_to "Destroy "+@equipment_model.name.truncate(30), @equipment_model, :confirm => 'This will permanently delete the Item from your database and could have unintended consequences. You might break all the things. Are you sure?', :method => :delete, :class => 'btn btn-danger' %>
   <% end %>
   <%= link_to "View All "+ Category.include_deleted.find(@equipment_model.category_id)
 .name.pluralize.truncate(30), category_equipment_models_path(Category.include_deleted.find(@equipment_model.category_id)), :class => 'btn view_all' %>

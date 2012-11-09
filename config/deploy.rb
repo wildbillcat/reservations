@@ -86,15 +86,18 @@ EOF
       run "ln -nsf #{shared_path}/config/database.yml #{release_path}/config/database.yml"
       run "ln -nsf #{shared_path}/config/airbrake.rb #{release_path}/config/initializers/airbrake.rb"
       run "ln -nsf #{shared_path}/config/prefix.rb #{release_path}/config/initializers/prefix.rb"
+      
       run "mkdir -p #{shared_path}/log"
-      run "mkdir -p #{shared_path}/pids"
-      run "mkdir -p #{shared_path}/sessions"
-      run "mkdir -p #{shared_path}/system/datas"
-
       run "ln -nsfF #{shared_path}/log/ #{release_path}/log"
+
+      run "mkdir -p #{shared_path}/pids"
       run "ln -nsfF #{shared_path}/pids/ #{release_path}/tmp/pids"      
+
+      run "mkdir -p #{shared_path}/sessions"
       run "ln -nsfF #{shared_path}/sessions/ #{release_path}/tmp/sessions"
-      run "ln -nsfF #{shared_path}/system/ #{release_path}/public/system"
+
+      run "mkdir -p #{shared_path}/attachments"
+      run "ln -nsfF #{shared_path}/attachments/ #{release_path}/public/attachments"
     end    
   end  
 end
@@ -127,6 +130,7 @@ namespace :deploy do
     setup
     create_db
     update
+    init.config.localize
     passenger_config
     migrate
     restart_apache
@@ -171,10 +175,9 @@ end
 after "deploy:setup", "init:config:database"
 after "deploy:setup", "init:config:airbrake"
 after "deploy:setup", "init:config:prefix_initializer"
-after "deploy:symlink", "init:config:localize"
-after "deploy:symlink", "deploy:update_crontab"
+after "deploy:create_symlink", "init:config:localize"
+after "deploy:create_symlink", "deploy:update_crontab"
 after "deploy", "deploy:cleanup"
-after "deploy", "init:config:localize"
 after "deploy:migrations", "deploy:cleanup"
 before "deploy:assets:precompile", "init:config:localize"
 

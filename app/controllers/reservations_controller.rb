@@ -5,45 +5,24 @@ class ReservationsController < ApplicationController
   before_filter :require_checkout_person, :only => [:check_out, :check_in]
 
   def index
-    if current_user.can_checkout?
-      if params[:reserved]
-        @reservations_set = [Reservation.reserved].delete_if{|a| a.empty?} # remove empty arrays from set
-      elsif params[:checked_out]
-        @reservations_set = [Reservation.checked_out].delete_if{|a| a.empty?}
-      elsif params[:overdue]
-        @reservations_set = [Reservation.overdue].delete_if{|a| a.empty?}
-      elsif params[:missed]
-        @reservations_set = [Reservation.missed].delete_if{|a| a.empty?}
-      elsif params[:returned]
-        @reservations_set = [Reservation.returned].delete_if{|a| a.empty?}
-      else
-        @reservations_set = [Reservation.upcoming].delete_if{|a| a.empty?}
-      end
-    else # for normal and banned users
-      if params[:checked_out]
-        @reservations_set = [current_user.reservations.checked_out].delete_if{|a| a.empty?} # remove empty arrays from set
-      elsif params[:overdue]
-        @reservations_set = [current_user.reservations.overdue].delete_if{|a| a.empty?}
-      elsif params[:missed]
-        @reservations_set = [current_user.reservations.missed].delete_if{|a| a.empty?}
-      elsif params[:returned]
-        @reservations_set = [current_user.reservations.returned].delete_if{|a| a.empty?}
-      else
-        @reservations_set = [current_user.reservations.reserved].delete_if{|a| a.empty?}
+    #define our source of reservations depending on user status
+    reservations_source = current_user.can_checkout? ? Reservation : current_user.reservations
+    default_filter = current_user.can_checkout? ? :upcoming : :reserved
+    
+    filters = [:reserved, :checked_out, :overdue, :missed, :returned, :upcoming]
+    #if the filter is defined in the params, store those reservations
+    filters.each do |filter|
+      if params[filter]
+        @reservations_set = [reservations_source.send(filter)].delete_if{|a| a.empty?}
       end
     end
+    
+    #if no filter is defined
+    @reservations_set ||= [reservations_source.send(default_filter)].delete_if{|a| a.empty?}    
   end
 
   def show
     @reservation = Reservation.find(params[:id])
-  end
-
-  def show_all # Action called in _reservations_list partial view, allows checkout person to view all current reservations for one user
-    @user = User.include_deleted.find(params[:user_id])
-    @user_overdue_reservations_set = [Reservation.overdue_user_reservations(@user)].delete_if{|a| a.empty?}
-    @user_checked_out_today_reservations_set = [Reservation.checked_out_today_user_reservations(@user)].delete_if{|a| a.empty?}
-    @user_checked_out_previous_reservations_set = [Reservation.checked_out_previous_user_reservations(@user)].delete_if{|a| a.empty?}
-    @user_reserved_reservations_set = [Reservation.reserved_user_reservations(@user)].delete_if{|a| a.empty?}
   end
 
   def new
@@ -82,15 +61,16 @@ class ReservationsController < ApplicationController
           cart.items.each { |item| CartReservation.delete(item) }
           session[:cart] = Cart.new
           if AppConfig.first.reservation_confirmation_email_active?
-            UserMailer.reservation_confirmation(complete_reservation).deliver
+            #UserMailer.reservation_confirmation(complete_reservation).deliver
           end
           if current_user.can_checkout?
             redirect_to manage_reservations_for_user_path(params[:reservation][:reserver_id]) and return
           else
             redirect_to catalog_path, :flash => {:notice => "Successfully created reservation. " } and return
           end
-        rescue
-          format.html {redirect_to catalog_path, :flash => {:error => "Oops, something went wrong with making your reservation."} }
+        rescue Exception => e          
+          format.html {redirect_to catalog_path, :flash => {:error => "Oops, something went wrong with making your reservation.<br/> #{e.message}".html_safe} }
+
           raise ActiveRecord::Rollback
         end
       end

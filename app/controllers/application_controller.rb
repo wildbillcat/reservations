@@ -12,7 +12,6 @@ class ApplicationController < ActionController::Base
   before_filter :first_time_user
   before_filter :cart
   before_filter :set_view_mode
-  #before_filter :bind_pry_before_everything
 
   helper_method :current_user
   helper_method :cart
@@ -82,10 +81,6 @@ class ApplicationController < ActionController::Base
     @current_user ||= User.include_deleted.find_by_login(session[:cas_user]) if session[:cas_user]
   end
 
-  def bind_pry_before_everything
-    binding.pry
-  end
-
   #-------- end before_filter methods --------
 
   def update_cart
@@ -108,9 +103,15 @@ class ApplicationController < ActionController::Base
   end
 
   def empty_cart
+    #destroy old cart reservations
+    current_cart = session[:cart]
+    CartReservation.where(:reserver_id => current_cart.reserver.id).destroy_all
+    
+    #create a new cart
     session[:cart] = Cart.new
     session[:cart].set_reserver_id(current_user.id)
     flash[:notice] = "Cart emptied."
+    
     redirect_to root_path
   end
 
@@ -169,13 +170,15 @@ class ApplicationController < ActionController::Base
   def activate
     if (current_user.is_admin)
       @model_to_activate = params[:controller].singularize.titleize.delete(' ').constantize.include_deleted.find(params[:id]) #Finds the current model (User, EM, EO, Category)
-      
+
       if (params[:controller] != "users") #Search for parents is not necessary if we are altering users.
         activateParents(@model_to_activate)
+        @model_to_activate.revive
         activateChildren(@model_to_activate)
+      else
+        @model_to_activate.revive
       end
-      @model_to_activate.revive #Activate the model you had originally intended to activate
-      
+
       flash[:notice] = "Successfully reactivated " + params[:controller].singularize.titleize + ". Any related reservations or equipment have been reactivated as well."
     else
       flash[:notice] = "Only administrators can do that!"
