@@ -52,7 +52,6 @@ end
 
 group :development do
   gem 'rb-readline'
-	gem 'thin'
   gem 'pry'
   gem 'pry-rails'
   gem 'pry-debugger'
