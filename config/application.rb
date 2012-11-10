@@ -57,6 +57,7 @@ module Reservations
 
     # Add app/assets/fonts to the asset pipeline known paths
     config.assets.paths << Rails.root.join("app", "assets", "fonts")
+    config.assets.initialize_on_precompile = false
 
     # Ensures that each controller doesn't load every helper in the application
     config.action_controller.include_all_helpers = false
