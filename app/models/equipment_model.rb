@@ -8,9 +8,11 @@ class EquipmentModel < ActiveRecord::Base
   has_many :reservations
 
   has_many :checkin_procedures, :dependent => :destroy
-  accepts_nested_attributes_for :checkin_procedures, :reject_if => :all_blank, :allow_destroy => true
+  accepts_nested_attributes_for :checkin_procedures, \
+                                :reject_if => :all_blank, :allow_destroy => true
   has_many :checkout_procedures, :dependent => :destroy
-  accepts_nested_attributes_for :checkout_procedures, :reject_if => :all_blank, :allow_destroy => true
+  accepts_nested_attributes_for :checkout_procedures, \
+                                :reject_if => :all_blank, :allow_destroy => true
 
   # Equipment Models are associated with other equipment models to help us recommend items that go together.
   # Ex: a camera, camera lens, and tripod
@@ -27,7 +29,9 @@ class EquipmentModel < ActiveRecord::Base
   validates :name,         :uniqueness => true
   validates :late_fee,     :replacement_fee,
                            :numericality => { :greater_than_or_equal_to => 0 }
-  validates :max_per_user, :numericality => { :allow_nil => true, :integer_only => true, :greater_than_or_equal_to => 1 }
+  validates :max_per_user, :numericality => { :allow_nil => true, \
+                                              :integer_only => true, \
+                                              :greater_than_or_equal_to => 1 }
   validates :max_renewal_length,
             :max_renewal_times,
             :renewal_days_before_due,  :numericality => { :allow_nil => true, :integer_only => true, :greater_than_or_equal_to => 0 }
@@ -139,27 +143,17 @@ class EquipmentModel < ActiveRecord::Base
     self.documents.images
   end
 
-#TODO: blackout vs validation
-#TODO: doesn't return true/false so it should be num_available(*)
-#  def num_available(start_date, due_date)
-#    overall_count = self.equipment_objects.size
-#    start_date.to_date.upto(due_date.to_date) do |date|
-#      available_on_date = available_count(date)
-#      overall_count = available_on_date if available_on_date < overall_count
-#    end
-#    overall_count
-#  end
+  #TODO: blackout vs validation
   def num_available(start_date, due_date)
-    overall_count = self.equipment_objects.size
-    start_date.to_date.upto(due_date.to_date) do |date|
-       available_on_date = available_count(date)
-       overall_count = available_on_date if available_on_date < overall_count
+    availability = start_date.to_date.upto(due_date.to_date).map do |date|
+       available_count(date)
     end
-    overall_count
+    availability.min
   end
 
-  #TODO: Test to see if this works when a
-  def model_restricted?(reserver_id) # Returns true if the reserver is ineligible to checkout the model.
+  
+  # Returns true if the reserver is ineligible to checkout the model.
+  def model_restricted?(reserver_id)
     reserver = User.find(reserver_id)
     self.requirements.each do |em_req|
       unless reserver.requirements.include?(em_req)
@@ -179,31 +173,31 @@ class EquipmentModel < ActiveRecord::Base
     return false
   end
 
-  def reserved_count(date) #Returns the number of reserved objects for a particular model, as long as they have not been checked in or out
-    Reservation.where("checked_out IS NULL and checked_in IS NULL and equipment_model_id = ? and start_date <= ? and due_date >= ?", self.id, date.to_time.utc, date.to_time.utc).size
+  # Returns the number of reserved objects for a particular model, 
+  # as long as they have not been checked out
+  def number_reserved_on_date(date) 
+    Reservation.reserved_on_date(date).not_returned.for_eq_model(self).size
   end
 
-  def overdue_count(date) #Returns the number of overdue objects for a given model, as long as they have been checked out.
-    Reservation.where("checked_out IS NOT NULL and checked_in IS NULL and equipment_model_id = ? and due_date < ?", self.id, Date.today.to_time.utc).size
+  # Returns the number of overdue objects for a given model, 
+  # as long as they have been checked out.
+  def number_overdue 
+    Reservation.overdue.for_eq_model(self).size
   end
 
-  def checked_out(date) #Returns the number of objects for a particular model that are checked out, and not overdue.
-    Reservation.where("checked_out IS NOT NULL and checked_in IS NULL and equipment_model_id = ? and due_date >= ?", self.id, Date.today.to_time.utc).size
-  end
 
   def available_count(date)
     # get the total number of objects of this kind
-    # then subtract the total quantity currently checked out, reserved, and overdue
-    reserved_count = self.reserved_count(date)
-    checked_out = self.checked_out(date)
-    overdue_count = self.overdue_count(date)
-    total_count = self.equipment_objects.count
-
-    total_count - reserved_count - overdue_count - checked_out
+    # then subtract the total quantity currently reserved, and overdue
+    total = equipment_objects.count
+    (total - number_reserved_on_date(date)) - number_overdue
   end
 
   def available_object_select_options
-    self.equipment_objects.select{|e| e.available?}.sort_by(&:name).collect{|item| "<option value=#{item.id}>#{item.name}</option>"}.join.html_safe
+    self.equipment_objects.select{|e| e.available?}\
+        .sort_by(&:name)\
+        .collect{|item| "<option value=#{item.id}>#{item.name}</option>"}\
+        .join.html_safe
   end
 
   def fake_category_id

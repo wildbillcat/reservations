@@ -1,34 +1,40 @@
 source "https://rubygems.org"
 
-gem 'rake'
+#standard gems
 gem 'rails', '3.2.8'
-gem 'pg'
+gem 'rake'
 gem 'rdoc'
-gem 'airbrake'
 
+#authentication
 gem 'rubycas-client-rails'
 gem 'rubycas-client', '2.2.1'
-gem 'net-ldap'
-gem 'paperclip'
 
+#scheduling
+gem 'whenever'
+
+#ldap integration
+gem 'net-ldap'
+
+#attachments
+gem 'paperclip'
 
 gem 'permanent_records', '~> 2.1.2'
 gem 'nilify_blanks'
-gem 'mail'
-gem 'redcarpet'
 
-gem 'dynamic_form'
-gem 'simple_form'
-gem 'cocoon'
-gem 'kaminari'
-gem 'select2-rails'
-
+#ui
 gem 'jquery_datepicker'
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
 gem 'jquery-datatables-rails'
 gem 'rails3-jquery-autocomplete'
+gem 'select2-rails'
+gem 'kaminari'
 
+#forms / formatting
+gem 'dynamic_form'
+gem 'simple_form'
+gem 'cocoon'
+gem 'redcarpet'
 
 group :development, :test do
   gem "factory_girl_rails"
@@ -39,6 +45,7 @@ group :development, :test do
   gem 'ffaker'
   gem 'capistrano'
   gem 'mysql2'
+  gem 'awesome_print'
 end
 
 # Gems used only for assets and not required
@@ -58,8 +65,11 @@ group :development do
   gem 'pry-debugger'
   gem 'pry-stack_explorer'
   gem 'pry-remote'
+  gem 'letter_opener' 
 end
 
 group :production do
-  gem "therubyracer", :require => 'v8'
+  gem 'therubyracer', :require => 'v8'
+  gem 'airbrake'
+  gem 'pg'
 end
