@@ -1,4 +1,5 @@
 class AppConfigsController < ApplicationController
+  # testing heroku
   before_filter :require_admin
   
   def edit
