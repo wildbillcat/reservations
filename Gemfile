@@ -36,13 +36,14 @@ gem 'simple_form'
 gem 'cocoon'
 gem 'redcarpet'
 
+gem 'ffaker' #needs to be in production for Heroku
+
 group :development, :test do
   gem "factory_girl_rails"
   gem 'rspec-rails'
   gem 'capybara'
   gem 'guard-livereload'
   gem 'yajl-ruby'
-  gem 'ffaker'
   gem 'capistrano'
   gem 'mysql2'
   gem 'awesome_print'
