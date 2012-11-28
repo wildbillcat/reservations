@@ -17,6 +17,7 @@ gem 'net-ldap'
 
 #attachments
 gem 'paperclip'
+gem 'aws-sdk'
 
 gem 'permanent_records', '~> 2.1.2'
 gem 'nilify_blanks'
