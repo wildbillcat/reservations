@@ -3,6 +3,7 @@ class ReservationsController < ApplicationController
 
   before_filter :require_login, :only => [:index, :show]
   before_filter :require_checkout_person, :only => [:check_out, :check_in]
+  before_filter :require_admin, :only => [:edit, :update]
 
   def index
     #define our source of reservations depending on user status
@@ -55,6 +56,7 @@ class ReservationsController < ApplicationController
           cart.cart_reservations.each do |cart_res|
             @reservation = Reservation.new(params[:reservation])
             @reservation.equipment_model =  cart_res.equipment_model
+            @reservation.from_admin = current_user.is_admin_in_adminmode?
             @reservation.save!
             successful_reservations << @reservation
           end
@@ -68,7 +70,7 @@ class ReservationsController < ApplicationController
           else
             redirect_to catalog_path, :flash => {:notice => "Successfully created reservation. " } and return
           end
-        rescue Exception => e          
+        rescue Exception => e
           format.html {redirect_to catalog_path, :flash => {:error => "Oops, something went wrong with making your reservation.<br/> #{e.message}".html_safe} }
 
           raise ActiveRecord::Rollback
@@ -139,11 +141,12 @@ class ReservationsController < ApplicationController
             end
           end
 
+          
           # add procedures_not_done to r.notes so admin gets the errors
           # if no notes and some procedures not done
-
           if procedures_not_done.present?
-            r.notes = reservation_hash[:notes] + "\n\nThe following checkout procedures were not performed:\n" + procedures_not_done
+            modified_notes = reservation_hash[:notes].present? ? reservation_hash[:notes] + "\n\n" : ""
+            r.notes = modified_notes + "The following checkout procedures were not performed:\n" + procedures_not_done
             r.notes_unsent = true
           elsif reservation_hash[:notes].present? # if all procedures were done
             r.notes = reservation_hash[:notes]
@@ -197,7 +200,7 @@ class ReservationsController < ApplicationController
       @check_out_set = reservations_to_be_checked_out
       render 'receipt' and return
   rescue Exception => e
-    redirect_to manage_reservations_for_user_path(reservations_to_be_checked_out.first.reserver), :flash => {:error => "Oops, something went wrong checking in your reservation.<br/> #{e.message}".html_safe}
+    redirect_to manage_reservations_for_user_path(reservations_to_be_checked_out.first.reserver), :flash => {:error => "Oops, something went wrong checking out your reservation.<br/> #{e.message}".html_safe}
   end
 
   def checkin
@@ -206,6 +209,13 @@ class ReservationsController < ApplicationController
     params[:reservations].each do |reservation_id, reservation_hash|
       if reservation_hash[:checkin?] == "1" then # update attributes for all equipment that is checked off
         r = Reservation.find(reservation_id)
+        
+        if r.checked_in
+          flash[:error] = "One or more items you were trying to checkout has already been checked in." 
+          redirect_to :back 
+          return
+        end
+        
         r.checkin_handler = current_user
         r.checked_in = Time.now
 
@@ -220,8 +230,8 @@ class ReservationsController < ApplicationController
         end
 
         # add procedures_not_done to r.notes so admin gets the errors
-        previous_notes = r.notes.present? ? "Check-in Notes:\n" + r.notes + "\n\n" : ""
-        new_notes = "\n\nCheck Out Notes:\n" + reservation_hash[:notes]
+        previous_notes = r.notes.present? ? "Checkout Notes:\n" + r.notes + "\n\n" : ""
+        new_notes = reservation_hash[:notes].present? ? "Checkin Notes:\n" + reservation_hash[:notes] : ""
 
         if procedures_not_done.present?
           r.notes = previous_notes + new_notes + "\n\nThe following check-in procedures were not performed:\n" + procedures_not_done
@@ -229,6 +239,8 @@ class ReservationsController < ApplicationController
         elsif new_notes.present? # if all procedures were done
           r.notes = previous_notes + new_notes # add blankline because there may well have been previous notes
           r.notes_unsent = true
+        else
+          r.notes = previous_notes
         end
         r.notes.strip! if r.notes?
 
@@ -270,13 +282,13 @@ class ReservationsController < ApplicationController
   end
 
   def manage # initializer
-    @user = User.include_deleted.find(params[:user_id])
+    @user = User.find(params[:user_id])
     @check_out_set = Reservation.due_for_checkout(@user)
     @check_in_set = Reservation.due_for_checkin(@user)
   end
 
   def current
-    @user = User.include_deleted.find(params[:user_id])
+    @user = User.find(params[:user_id])
 
     @user_overdue_reservations_set = [Reservation.overdue_user_reservations(@user)].delete_if{|a| a.empty?}
     @user_checked_out_today_reservations_set = [Reservation.checked_out_today_user_reservations(@user)].delete_if{|a| a.empty?}
