@@ -1,12 +1,16 @@
 <div class="thumbnail">
   <% if equipment_model.photo.exists? %>
     <%# show equipment model image %>
-    <%= link_to equipment_model do %>
-      <%= image_tag equipment_model.photo.url(:thumbnail) %>
-    <% end %>
+    <%#= link_to equipment_model do %>
+      <div class="april_fools_image_swap">
+        <%= image_tag equipment_model.photo.url(:thumbnail) %>
+      </div>
+    <%# end %>
   <% else %>
     <%= link_to equipment_model do %>
-      <%= image_tag "no-image.gif" %>
+      <div class="april_fools_image_swap">
+        <%= image_tag "no-image.gif" %>
+      </div>
     <% end %>
   <% end %>
     <h3 class="equipment_title"><%= link_to equipment_model.name, equipment_model, :class => 'equipment_title_link', :rel => 'tooltip', :title => equipment_model.name %></h3>

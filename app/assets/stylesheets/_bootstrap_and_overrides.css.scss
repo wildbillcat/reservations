@@ -11,6 +11,13 @@ body {
 @import "font-awesome";
 @import "dataTables/jquery.dataTables.bootstrap";
 
+.april_fools_image_swap{
+  background:asset-url('kitten.jpeg', image);
+}
+
+.april_fools_image_swap img:hover{
+    opacity:0;
+}
 
 //For DataTables sorting styling with Bootstrap
 
