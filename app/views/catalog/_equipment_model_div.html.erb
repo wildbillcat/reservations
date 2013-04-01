@@ -3,7 +3,9 @@
     <%# show equipment model image %>
     <%#= link_to equipment_model do %>
       <div class="april_fools_image_swap">
-        <%= image_tag equipment_model.photo.url(:thumbnail) %>
+        <div class="april_fools_backing">
+          <%= image_tag equipment_model.photo.url(:thumbnail) %>
+        </div>
       </div>
     <%# end %>
   <% else %>

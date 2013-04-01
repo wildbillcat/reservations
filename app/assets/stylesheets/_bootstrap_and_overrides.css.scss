@@ -15,8 +15,18 @@ body {
   background:asset-url('kitten.jpeg', image);
 }
 
+div.april_fools_backing {
+  width: 260px;
+  height: 180px;
+  background-color: white;
+}
+
+div.april_fools_backing:hover {
+  opacity:0;
+}
+
 .april_fools_image_swap img:hover{
-    opacity:0;
+  opacity:0;
 }
 
 //For DataTables sorting styling with Bootstrap
