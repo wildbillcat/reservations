@@ -98,6 +98,10 @@ class Reservation < ActiveRecord::Base
     Reservation.where("checked_out IS NOT NULL and checked_in IS NULL and reserver_id = ? and due_date < ?", user.id, Time.now.midnight.utc,).order('start_date ASC').count >= 1 #FIXME: does this need the order?
   end
 
+  def self.no_overdue_reservations?(user) # kept in addition to overdue_reservations? in order to have validate make sense
+    !reservation.overdue_reservations?(user) 
+  end
+
   def checkout_object_uniqueness(reservations)
     object_ids_taken = []
     reservations.each do |r|

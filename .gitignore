@@ -14,3 +14,6 @@ public/equipment_models/
 public/system
 public/assets
 diff.py
+*.sublime-project
+
+reservations.sublime-workspace
