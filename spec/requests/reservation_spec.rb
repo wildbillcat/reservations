@@ -15,6 +15,7 @@ describe 'reservation' do
 
   it 'can be created' do
     res.save.should == true
+    admin.reservations.should_not == []
     Reservation.all.size.should == 1
     Reservation.all.first.should == res
   end
@@ -42,12 +43,14 @@ describe 'reservation' do
     res.not_in_past?.should == true
     res.start_date = Date.yesterday
     res.not_in_past?.should == false
-    overdue_res = FactoryGirl.build(:overdue_reservation)
+    overdue_res = FactoryGirl.build(:overdue_reservation, reserver: admin)
     overdue_res.save(:validate => false)
     overdue_res.not_in_past?.should == true #not_in_past ignores missed/overdue reservations
+    Reservation.delete(overdue_res.id) #otherwise will fail because of overdue reservation
     checked_out_res = FactoryGirl.build(:checked_out_reservation)
     checked_out_res.save(:validate => false)
     checked_out_res.not_in_past?.should == true #not_in_past ignores checked in/checked out reservations
+    Reservation.delete(checked_out_res.id)
     res.save.should == false
     res.start_date = Date.today
     res.save.should == true
@@ -131,6 +134,27 @@ describe 'reservation' do
     unrestricted_res.quantity_eq_model_allowed?.should == true
   end
 
+  it 'creates correct errors for validate_set' do
+    admin.reservations.delete_all  # Reservation.delete_all removes all reservations, but doesn't clear a reservation from admin.reservations
+    Reservation.delete_all
+    EquipmentModel.delete_all
+    admin.reservations.should == []
+    Reservation.validate_set(admin).should == []
+    cat = FactoryGirl.create(:category)
+    mod = FactoryGirl.create(:equipment_model_with_object, category: cat)
+    # res = Reservation.new(reserver: admin, start_date: Date.today, due_date: Date.tomorrow)
+    res = FactoryGirl.build(:reservation, reserver: admin, equipment_model: mod)
+    res.save.should == true
+    res.reserver.should == admin
+    admin.reservations.should_not == []  # having a lot of trouble because admin.reservations is not showing this reservation
+    binding.pry
+    Reservation.validate_set(admin).should == []
+    # binding.pry
+    overdue_res = FactoryGirl.build(:overdue_reservation, reserver: admin)
+    overdue_res.save(:validate => false)
+    Reservation.validate_set(admin).should == ["User has overdue reservations that prevent new ones from being created"]
+  end
+
   it 'passes/fails quantity_cat_allowed? correctly' do
     Reservation.delete_all
     EquipmentModel.delete_all
@@ -151,15 +175,5 @@ describe 'reservation' do
     unrestricted_res.quantity_cat_allowed?.should == true
   end
 
-  it 'creates correct errors for validate_set' do
-    Reservation.delete_all
-    EquipmentModel.delete_all
-    Reservation.validate_set(admin).should == []
-    res = FactoryGirl.build(:reservation, reserver: admin)
-    res.save(:validate => false)
-    Reservation.validate_set(admin).should == []
-    overdue_res = FactoryGirl.build(:overdue_reservation, reserver: admin)
-    overdue_res.save(:validate => false)
-    Reservation.validate_set(admin).should == ["User has overdue reservations that prevent new ones from being created"]
-  end
+
 end

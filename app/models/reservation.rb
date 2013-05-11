@@ -10,14 +10,16 @@ class Reservation < ActiveRecord::Base
             :due_date,
             :equipment_model,
             :presence => true
-
+  # validate :no_overdue_reservations?
   # If there is no equipment model, don't run the validations that would break
   with_options :if => :not_empty? do |r|
     r.validate :start_date_before_due_date?, :matched_object_and_model?, :not_in_past?,
-              :duration_allowed?, :available?, :start_date_is_not_blackout?,
-              :due_date_is_not_blackout?, :quantity_eq_model_allowed?, :quantity_cat_allowed?
-    r.validate :not_in_past?, :not_renewable?, :no_overdue_reservations?, :on => :create
+                :duration_allowed?, :available?, :start_date_is_not_blackout?,
+                :due_date_is_not_blackout?, :quantity_eq_model_allowed?, :quantity_cat_allowed?, 
+                :no_overdue_reservations?, :not_in_past?, :not_renewable?
+    # r.validate :validate_set
   end
+
 
   scope :recent, order('start_date, due_date, reserver_id')
   scope :user_sort, order('reserver_id')
@@ -67,22 +69,35 @@ class Reservation < ActiveRecord::Base
   # Returns an array of error messages or [] if reservations are all valid
   def self.validate_set(user, res_array = [])
     all_res_array = res_array + user.reservations
-    errors = []
+    error_arr = []
     all_res_array.each do |res|
-      errors << user.name + " has overdue reservations that prevent new ones from being created" unless res.no_overdue_reservations?
-      errors << "Reservations cannot be made in the past" unless res.not_in_past? if self.class == CartReservation
-      errors << "Reservations start dates must be before due dates" unless res.start_date_before_due_date?
-      errors << "Reservations must have an associated equipment model" unless res.not_empty?
-      errors << res.equipment_object.name + " must be of type " + res.equipment_model.name unless res.matched_object_and_model?
-      errors << res.equipment_model.name + " should be renewed instead of re-checked out" unless res.not_renewable? if self.class == CartReservation
-      errors << "Duration of " + res.equipment_model.name + " reservation must be less than " + res.equipment_model.category.maximum_checkout_length.to_s unless res.duration_allowed?
-      errors << res.equipment_model.name + " is not available for the full time period requested" unless res.available?(res_array)
-      errors << "A reservation cannot start on " + res.start_date.strftime('%m/%d') + " because equipment cannot be picked up on that date" unless res.start_date_is_not_blackout?
-      errors << "A reservation cannot end on " + res.due_date.strftime('%m/%d') + " because equipment cannot be returned on that date" unless res.due_date_is_not_blackout?
-      errors << "Quantity of " + res.equipment_model.name.pluralize + " must not exceed " + res.equipment_model.maximum_per_user.to_s unless res.quantity_eq_model_allowed?(res_array)
-      errors << "Quantity of " + res.equipment_model.category.name.pluralize + " must not exceed " + res.equipment_model.category.maximum_per_user.to_s unless res.quantity_cat_allowed?(res_array)
-	end
-  errors.uniq
+        # errors.add(:not_in_past, "Reservations cannot be made in the past") unless res.not_in_past? if self.class == CartReservation
+        # errors.add(:start_date_before_due_date?, "Reservations start dates must be before due dates") unless res.start_date_before_due_date?
+        # errors.add(:not_empty?,"Reservations must have an associated equipment model") unless res.not_empty?
+        # errors.add(:matched_object_and_model?, res.equipment_object.name + " must be of type " + res.equipment_model.name) unless res.matched_object_and_model?
+        # errors.add(:not_renewable?, res.equipment_model.name + " should be renewed instead of re-checked out") unless res.not_renewable? if self.class == CartReservation
+        # errors.add(:duration_allowed?, "Duration of " + res.equipment_model.name + " reservation must be less than " + res.equipment_model.category.maximum_checkout_length.to_s) unless res.duration_allowed?
+        # errors.add(:available?, res.equipment_model.name + " is not available for the full time period requested") unless res.available?(res_array)
+        # errors.add(:start_date_is_not_blackout?, "A reservation cannot start on " + res.start_date.strftime('%m/%d') + " because equipment cannot be picked up on that date") unless res.start_date_is_not_blackout?
+        # errors.add(:due_date_is_not_blackout?, "A reservation cannot end on " + res.due_date.strftime('%m/%d') + " because equipment cannot be returned on that date") unless res.due_date_is_not_blackout?
+        # errors.add(:quantity_eq_model_allowed?, "Quantity of " + res.equipment_model.name.pluralize + " must not exceed " + res.equipment_model.maximum_per_user.to_s) unless res.quantity_eq_model_allowed?(res_array)
+        # errors.add(:quantity_cat_allowed, "Quantity of " + res.equipment_model.category.name.pluralize + " must not exceed " + res.equipment_model.category.maximum_per_user.to_s) unless res.quantity_cat_allowed?(res_array)
+
+      error_arr << user.name + " has overdue reservations that prevent new ones from being created" unless res.no_overdue_reservations?
+      error_arr << "Reservations cannot be made in the past" unless res.not_in_past? if self.class == CartReservation
+      error_arr << "Reservations start dates must be before due dates" unless res.start_date_before_due_date?
+      error_arr << "Reservations must have an associated equipment model" unless res.not_empty?
+      error_arr << res.equipment_object.name + " must be of type " + res.equipment_model.name unless res.matched_object_and_model?
+      error_arr << res.equipment_model.name + " should be renewed instead of re-checked out" unless res.not_renewable? if self.class == CartReservation
+      error_arr << "Duration of " + res.equipment_model.name + " reservation must be less than " + res.equipment_model.category.maximum_checkout_length.to_s unless res.duration_allowed?
+      error_arr << res.equipment_model.name + " is not available for the full time period requested" unless res.available?(res_array)
+      error_arr << "A reservation cannot start on " + res.start_date.strftime('%m/%d') + " because equipment cannot be picked up on that date" unless res.start_date_is_not_blackout?
+      error_arr << "A reservation cannot end on " + res.due_date.strftime('%m/%d') + " because equipment cannot be returned on that date" unless res.due_date_is_not_blackout?
+      error_arr << "Quantity of " + res.equipment_model.name.pluralize + " must not exceed " + res.equipment_model.maximum_per_user.to_s unless res.quantity_eq_model_allowed?(res_array)
+      error_arr << "Quantity of " + res.equipment_model.category.name.pluralize + " must not exceed " + res.equipment_model.category.maximum_per_user.to_s unless res.quantity_cat_allowed?(res_array)
+
+    end
+    return error_arr.uniq
   end
 
 
@@ -96,10 +111,6 @@ class Reservation < ActiveRecord::Base
 
   def self.overdue_reservations?(user)
     Reservation.where("checked_out IS NOT NULL and checked_in IS NULL and reserver_id = ? and due_date < ?", user.id, Time.now.midnight.utc,).order('start_date ASC').count >= 1 #FIXME: does this need the order?
-  end
-
-  def self.no_overdue_reservations?(user) # kept in addition to overdue_reservations? in order to have validate make sense
-    !reservation.overdue_reservations?(user) 
   end
 
   def checkout_object_uniqueness(reservations)
