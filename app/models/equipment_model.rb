@@ -106,15 +106,6 @@ class EquipmentModel < ActiveRecord::Base
     "#{self.id}-#{self.photo_file_name.gsub( /[^a-zA-Z0-9_\.]/, '_')}"
   end
 
-  ###################
-  ## Class Methods ##
-  ###################
-
-  #TODO: this appears to be dead code - verify and remove
-  def self.select_options
-    self.order('name ASC').collect{|item| [item.name, item.id]}
-  end
-
   ######################
   ## Instance Methods ##
   ######################
