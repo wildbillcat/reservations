@@ -22,6 +22,9 @@ gem 'paperclip'
 gem 'permanent_records'
 gem 'nilify_blanks'
 
+#static pages
+gem 'high_voltage'
+
 #ui
 gem 'jquery_datepicker'
 gem 'jquery-rails'
@@ -67,7 +70,7 @@ group :development do
   gem 'pry-debugger'
   gem 'pry-stack_explorer'
   gem 'pry-remote'
-  gem 'letter_opener' 
+  gem 'letter_opener'
 end
 
 group :production, :staging do

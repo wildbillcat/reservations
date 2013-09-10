@@ -8,6 +8,7 @@ class ApplicationController < ActionController::Base
   before_filter RubyCAS::Filter
   before_filter :app_setup, :if => lambda {|u| User.all.count == 0 }
   before_filter :current_user
+  before_filter :deny_banned_users
   before_filter :load_configs
   before_filter :first_time_user
   before_filter :cart
@@ -16,13 +17,13 @@ class ApplicationController < ActionController::Base
 
   helper_method :current_user
   helper_method :cart
-  
+
   #-------- before_filter methods --------
 
   def app_setup
       redirect_to new_admin_user_path
   end
-  
+
   def load_configs
     @app_configs = AppConfig.first
   end
@@ -82,6 +83,13 @@ class ApplicationController < ActionController::Base
     @current_user ||= User.find_by_login(session[:cas_user]) if session[:cas_user]
   end
 
+  def deny_banned_users
+    if current_user && current_user.is_banned
+      flash[:error] = "Your account has been disabled. Please contact an administrator for assistance"
+      redirect_to page_path(:access_denied)
+    end
+  end
+
   #-------- end before_filter methods --------
 
   def update_cart
@@ -116,12 +124,12 @@ class ApplicationController < ActionController::Base
     #destroy old cart reservations
     current_cart = session[:cart]
     CartReservation.where(:reserver_id => current_cart.reserver.id).destroy_all
-    
+
     #create a new cart
     session[:cart] = Cart.new
     session[:cart].set_reserver_id(current_user.id)
     flash[:notice] = "Cart emptied."
-    
+
     redirect_to root_path
   end
 
@@ -193,24 +201,24 @@ class ApplicationController < ActionController::Base
     end
     redirect_to request.referer  # Or use redirect_to(back)
   end
-  
+
   def markdown_help
     respond_to do |format|
       format.html{render :partial => 'shared/markdown_help'}
       format.js{render :template => 'shared/markdown_help_js'}
     end
-  end  
+  end
 
   def csv_import(filepath)
     # initialize
     imported_objects = []
     string = File.read(filepath)
     require 'csv'
-    
+
     # import data by row
     CSV.parse(string, :headers => true) do |row|
       object_hash = row.to_hash.symbolize_keys
-      
+
       # make all nil values blank
       object_hash.keys.each do |key|
         if object_hash[key].nil?

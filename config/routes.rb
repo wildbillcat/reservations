@@ -92,6 +92,9 @@ Reservations::Application.routes.draw do
 
   match 'announcements/:id/hide', to: 'announcements#hide', as: 'hide_announcement'
 
+  # Static Pages
+  get '/pages/*id' => 'pages#show', :as => :page, :format => false
+
   match ':controller(/:action(/:id(.:format)))'
 
 end
