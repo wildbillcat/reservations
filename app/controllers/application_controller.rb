@@ -133,11 +133,6 @@ class ApplicationController < ActionController::Base
     redirect_to root_path
   end
 
-  def logout
-    @current_user = nil
-    RubyCAS::Filter.logout(self)
-  end
-
   def require_admin(new_path=root_path)
     restricted_redirect_to(new_path) unless current_user.is_admin_in_adminmode?
   end

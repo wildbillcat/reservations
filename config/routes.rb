@@ -72,7 +72,7 @@ Reservations::Application.routes.draw do
   match '/:controller/:id/deactivate' => ':controller#deactivate', :via => :put, :as => 'deactivate'
   match '/:controller/:id/activate' => ':controller#activate', :via => :put, :as => 'activate'
 
-  match '/logout' => 'application#logout', :as => :logout
+  match '/logout' => 'sessions#destroy', :as => :logout
 
   match '/terms_of_service' => 'application#terms_of_service', :as => :tos
 
